@@ -1,0 +1,59 @@
+{% extends "hospital/patient/base.html" %}
+{% block title %}Rate your visit · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow"><a href="{% url 'patient_appointment_detail' appt.pk %}" style="color:inherit">← Back to appointment</a></div>
+    <h1 class="page-title">How was your visit?</h1>
+    <p class="page-sub">Dr. {{ appt.doctor.name }} · {{ appt.date_time|date:"l, M j, Y · g:i A" }}</p>
+  </div>
+</header>
+
+<section class="panel" style="max-width:560px">
+  <div class="panel-head">
+    <h2>Your rating</h2>
+    {% if existing %}<span class="meta">Last updated {{ existing.updated_at|date:"M j" }}</span>{% endif %}
+  </div>
+  <form method="post" style="padding:20px 22px 22px" id="rate-form">
+    {% csrf_token %}
+    <div class="rate-stars" role="radiogroup" aria-label="Star rating">
+      {% for v in "12345" %}
+        <label class="rate-star">
+          <input type="radio" name="stars" value="{{ forloop.counter }}" required
+                 {% if existing and existing.stars == forloop.counter %}checked{% endif %}/>
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        </label>
+      {% endfor %}
+    </div>
+    <div class="rate-readout" id="rate-readout" aria-live="polite">Tap a star</div>
+
+    <div class="field" style="margin-top:18px">
+      <label for="id_comment">Tell us more (optional)</label>
+      <textarea name="comment" id="id_comment" rows="4" maxlength="1000"
+                placeholder="What went well? What could have been better?">{% if existing %}{{ existing.comment }}{% endif %}</textarea>
+    </div>
+
+    <button class="btn btn--primary btn--lg magnetic" type="submit" style="margin-top:12px">
+      {% if existing %}Update rating{% else %}Submit rating{% endif %}
+    </button>
+  </form>
+</section>
+
+<script>
+  (function () {
+    const READOUT = {1:'Disappointing', 2:'Could be better', 3:'OK', 4:'Good', 5:'Excellent!'};
+    const stars = document.querySelectorAll('.rate-star input');
+    const out   = document.getElementById('rate-readout');
+    function sync() {
+      const v = parseInt(document.querySelector('.rate-star input:checked')?.value || '0', 10);
+      document.querySelectorAll('.rate-star').forEach((el, i) => {
+        el.classList.toggle('is-on', (i + 1) <= v);
+      });
+      out.textContent = v ? `${v}/5 — ${READOUT[v]}` : 'Tap a star';
+    }
+    stars.forEach(s => s.addEventListener('change', sync));
+    sync();
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "hospital/patient/base.html" %}
+{% block title %}Reschedule appointment · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow"><a href="{% url 'patient_appointment_detail' appt.pk %}" style="color:inherit">← Back to appointment</a></div>
+    <h1 class="page-title">Reschedule appointment</h1>
+    <p class="page-sub">With Dr. {{ doctor.name }} · currently on <b>{{ appt.date_time|date:"l, M j · g:i A" }}</b></p>
+  </div>
+</header>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Pick a new day</h2>
+    <span class="meta">Showing {{ next_days|length }} day{{ next_days|pluralize }}</span>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;padding:16px 20px">
+    {% for d in next_days %}
+      <a class="chat-quick-chip {% if d == target_date %}is-active-day{% endif %}"
+         href="?date={{ d|date:'Y-m-d' }}"
+         style="{% if d == target_date %}background:var(--sage-tint);color:var(--sage-deep);border-color:var(--sage-tint){% endif %}">
+        {{ d|date:"D, M j" }}
+      </a>
+    {% empty %}
+      <span class="meta">No availability in the next two weeks.</span>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>{{ target_date|date:"l, F j" }}</h2>
+    <span class="meta">{{ slots|length }} open slot{{ slots|pluralize }}</span>
+  </div>
+  {% if slots %}
+  <form method="post" class="book-confirm-form">
+    {% csrf_token %}
+    <div class="slot-grid">
+      {% for s in slots %}
+        <label class="slot-chip">
+          <input type="radio" name="slot" value="{{ s|date:'c' }}" required/>
+          <span>{{ s|date:"g:i A" }}</span>
+        </label>
+      {% endfor %}
+    </div>
+    <div style="padding:0 20px 20px">
+      <button class="btn btn--primary btn--lg magnetic" type="submit">Confirm new time</button>
+    </div>
+  </form>
+  {% else %}
+  <div class="empty" style="padding:32px">
+    <h3>No slots on this day</h3>
+    <p>Pick another day above.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

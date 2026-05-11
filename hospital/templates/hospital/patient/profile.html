@@ -1,0 +1,61 @@
+{% extends "hospital/patient/base.html" %}
+{% block title %}Profile · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">My account</div>
+    <h1 class="page-title">Profile</h1>
+    <p class="page-sub">Update the contact details we use to reach you about appointments.</p>
+  </div>
+</header>
+
+<section class="panel" style="max-width:560px">
+  <div class="panel-head">
+    <h2>Personal details</h2>
+    <span class="meta">ID #{{ me.pk }}</span>
+  </div>
+  <form method="post" class="auth-form" style="padding:16px 20px 20px">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% for err in field.errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <button class="btn btn--primary" type="submit">Save changes</button>
+  </form>
+</section>
+
+<section class="panel" style="max-width:560px;margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>Book via Telegram</h2>
+    {% if tg_link and tg_link.linked_at %}
+      <span class="pill pill--ok"><span class="dot"></span>Linked</span>
+    {% else %}
+      <span class="pill pill--neutral"><span class="dot"></span>Not linked</span>
+    {% endif %}
+  </div>
+  <div style="padding:16px 20px 20px;font-size:14px;line-height:1.55;color:var(--ink-2)">
+    {% if tg_link and tg_link.linked_at %}
+      <p>You're paired with Telegram username <b>@{{ tg_link.username|default:"(unknown)" }}</b>.
+      Use <code>/book</code> in the bot to schedule a visit without opening the website.</p>
+    {% elif tg_link %}
+      <p>Open the SmartHospital bot on Telegram, send <code>/start</code>, then:</p>
+      <pre style="background:var(--cream-2);padding:10px 14px;border-radius:8px;font-family:var(--font-mono,monospace);user-select:all">/link {{ tg_link.link_code }}</pre>
+      <p style="margin-top:10px;color:var(--ink-4);font-size:12px">This code is one-time and expires once you use it. If you generated it by mistake, just regenerate below.</p>
+      <form method="post" action="{% url 'patient_telegram_code' %}" style="margin-top:10px">
+        {% csrf_token %}
+        <button class="btn btn--ghost btn--sm" type="submit">Regenerate code</button>
+      </form>
+    {% else %}
+      <p>Want to book appointments from Telegram instead of the website? Generate a one-time link code, then send it to our bot.</p>
+      <form method="post" action="{% url 'patient_telegram_code' %}" style="margin-top:10px">
+        {% csrf_token %}
+        <button class="btn btn--primary btn--sm" type="submit">Generate Telegram code</button>
+      </form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

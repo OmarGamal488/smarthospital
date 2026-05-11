@@ -1,0 +1,35 @@
+{% extends "hospital/patient/base.html" %}
+{% block title %}Book · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">Step 1 of 3 · Specialty</div>
+    <h1 class="page-title">What do you need help with?</h1>
+    <p class="page-sub">Pick a department to see the doctors who accept appointments.</p>
+  </div>
+</header>
+
+<div class="book-stepper">
+  <span class="book-step is-active"><b>1</b> Specialty</span>
+  <span class="book-step"><b>2</b> Doctor</span>
+  <span class="book-step"><b>3</b> Time</span>
+</div>
+
+<section class="book-grid">
+  {% for d in departments %}
+    <a class="panel feature-card tilt" href="{% url 'patient_book_doctor' d.pk %}">
+      <div class="feature-ico" style="background:var(--sage-wash);color:var(--sage-deep)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
+      </div>
+      <h3>{{ d.name }}</h3>
+      <p>{{ d.description|default:"Specialist care." }}</p>
+    </a>
+  {% empty %}
+    <div class="empty" style="padding:40px;grid-column:1/-1">
+      <h3>No specialties available right now</h3>
+      <p>Please check back soon — our team is adding availability slots.</p>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

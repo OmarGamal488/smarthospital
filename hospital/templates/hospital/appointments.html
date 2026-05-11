@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Appointments · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">Schedule</div>
+    <h1 class="page-title">Appointments</h1>
+    <p class="page-sub">Upcoming and recent visits, with AI-assisted diagnosis confidence at a glance.</p>
+  </div>
+  <div class="page-actions">
+    <form method="post" action="{% url 'appointments_bulk_analyze' %}"
+          hx-post="{% url 'appointments_bulk_analyze' %}"
+          hx-target="#appointments-result"
+          hx-select="#appointments-result"
+          hx-swap="outerHTML"
+          hx-disabled-elt="find button"
+          hx-on::before-request="document.getElementById('appointments-result').classList.add('thinking'); this.querySelector('button').dataset.label = this.querySelector('button').innerText; this.querySelector('.btn-label').textContent = 'Analyzing…'"
+          hx-on::after-request="document.getElementById('appointments-result').classList.remove('thinking'); this.querySelector('.btn-label').textContent = 'Bulk analyze (AI)'"
+          style="display:inline">{% csrf_token %}
+      <button class="btn btn--ai" type="submit">
+        <svg class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg>
+        <span class="btn-label">Bulk analyze (AI)</span>
+      </button>
+    </form>
+    <a class="btn btn--ghost" href="{% url 'appointments_calendar' %}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Calendar
+    </a>
+    <a class="btn btn--ghost" href="{% url 'appointments_export' %}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+      Export CSV
+    </a>
+    <a class="btn btn--primary" href="{% url 'appointment_create' %}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Add appointment
+    </a>
+  </div>
+</header>
+
+<form class="toolbar" method="get"
+      hx-get="{% url 'appointments' %}"
+      hx-target="#appointments-result"
+      hx-select="#appointments-result"
+      hx-swap="outerHTML"
+      hx-trigger="input changed delay:300ms from:input[name='q'], change from:select[name='status']"
+      hx-push-url="true"
+      hx-indicator="#search-indicator">
+  <label class="search">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="search" name="q" placeholder="Search patient, doctor, reason…" value="{{ request.GET.q }}" autocomplete="off"/>
+    <span id="search-indicator" class="htmx-indicator search-spinner" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.55"/></svg>
+    </span>
+  </label>
+  <select class="select" name="status">
+    <option value="">All statuses</option>
+    <option value="Scheduled" {% if request.GET.status == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+    <option value="Completed" {% if request.GET.status == 'Completed' %}selected{% endif %}>Completed</option>
+    <option value="Canceled"  {% if request.GET.status == 'Canceled'  %}selected{% endif %}>Canceled</option>
+  </select>
+  <noscript><button class="btn btn--ghost" type="submit">Apply</button></noscript>
+</form>
+
+<div class="bulk-bar" id="bulk-bar" hidden>
+  <span class="bulk-count"><b id="bulk-count">0</b> selected</span>
+  <span class="bulk-spacer"></span>
+  <form method="post" action="{% url 'appointments_bulk_action' %}" id="bulk-form" style="display:contents">
+    {% csrf_token %}
+    <input type="hidden" name="ids" id="bulk-ids" value=""/>
+    <button class="btn btn--ghost btn--sm" type="submit" name="action" value="complete">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+      Complete
+    </button>
+    <button class="btn btn--ghost btn--sm" type="submit" name="action" value="cancel">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      Cancel
+    </button>
+    <button class="btn btn--ai btn--sm" type="submit" name="action" value="analyze">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg>
+      Analyze
+    </button>
+  </form>
+  <button class="icon-btn" type="button" id="bulk-clear" title="Clear selection"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+</div>
+
+<section class="panel" id="appointments-result">
+  <div class="skeleton-overlay" aria-hidden="true">
+    {% for _ in "xxxxxx" %}
+    <div class="skel-row">
+      <span class="skel skel--num"></span>
+      <span class="skel skel--avatar"></span>
+      <span class="skel skel--text"></span>
+      <span class="skel skel--text skel--med"></span>
+      <span class="skel skel--text skel--lg"></span>
+      <span class="skel skel--pill"></span>
+      <span class="skel skel--bar"></span>
+      <span class="skel skel--actions"></span>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr>
+        <th class="cell-check"><label class="check"><input type="checkbox" id="select-all"/><span></span></label></th>
+        <th class="row-num">#</th><th>Patient</th><th>Doctor</th><th>Date / time</th><th>Reason</th><th>Status</th><th>AI confidence</th><th class="cell-actions">Actions</th>
+      </tr></thead>
+      <tbody id="appointments-tbody">
+        {% include "hospital/_appointments_table.html" %}
+      </tbody>
+    </table>
+  </div>
+  {% include "hospital/pagination.html" with page=appointments extra=page_query %}
+</section>
+
+<script>
+  (function () {
+    const bar      = document.getElementById('bulk-bar');
+    const countEl  = document.getElementById('bulk-count');
+    const idsInput = document.getElementById('bulk-ids');
+    const form     = document.getElementById('bulk-form');
+    const clearBtn = document.getElementById('bulk-clear');
+    const selectAll = document.getElementById('select-all');
+
+    function syncBar() {
+      const checks = document.querySelectorAll('.row-check:checked');
+      const ids = Array.from(checks).map(c => c.value);
+      countEl.textContent = ids.length;
+      idsInput.value = ids.join(',');
+      bar.hidden = ids.length === 0;
+      if (selectAll) {
+        const all = document.querySelectorAll('.row-check');
+        selectAll.checked = all.length > 0 && ids.length === all.length;
+        selectAll.indeterminate = ids.length > 0 && ids.length < all.length;
+      }
+    }
+
+    document.addEventListener('change', e => {
+      if (e.target.classList && e.target.classList.contains('row-check')) syncBar();
+      if (e.target.id === 'select-all') {
+        const v = e.target.checked;
+        document.querySelectorAll('.row-check').forEach(c => { c.checked = v; });
+        syncBar();
+      }
+    });
+
+    if (clearBtn) clearBtn.addEventListener('click', () => {
+      document.querySelectorAll('.row-check').forEach(c => { c.checked = false; });
+      if (selectAll) selectAll.checked = false;
+      syncBar();
+    });
+
+    if (form) form.addEventListener('submit', e => {
+      const action = e.submitter && e.submitter.value;
+      if (action === 'cancel' && !confirm('Cancel ' + countEl.textContent + ' appointment(s)?')) {
+        e.preventDefault();
+      }
+    });
+
+    document.body.addEventListener('htmx:afterSwap', syncBar);
+    syncBar();
+  })();
+</script>
+{% endblock %}

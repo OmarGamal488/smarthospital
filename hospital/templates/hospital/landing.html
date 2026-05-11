@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}SmartHospital · AI-assisted clinical workflow{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="hero-pulse"></span>
+    Clinical software, reimagined
+  </div>
+  <h1 class="hero-title">
+    Run your clinic with the
+    <span class="hero-grad">calm of AI</span>
+    and the clarity of your team.
+  </h1>
+  <p class="hero-sub">
+    SmartHospital schedules patients, surfaces low-confidence diagnoses, and answers
+    the questions you'd otherwise dig through five tabs to find — all in one calm,
+    fast interface.
+  </p>
+  <div class="hero-actions">
+    <a class="btn btn--primary btn--lg magnetic" href="{% url 'patient_register' %}">
+      I'm a patient — book a visit
+      <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+    <a class="btn btn--ghost btn--lg" href="{% url 'login' %}">Staff sign in</a>
+    <a class="btn btn--ghost btn--lg" href="{% url 'services' %}">Browse specialties</a>
+  </div>
+
+  <div class="hero-marquee" aria-hidden="true">
+    <div class="hero-marquee-track">
+      {% for _ in "12" %}
+      <span>Emerald palette</span><span>·</span>
+      <span>HTMX live search</span><span>·</span>
+      <span>LangChain tool agent</span><span>·</span>
+      <span>Cursor-tracked spotlight</span><span>·</span>
+      <span>Dark mode</span><span>·</span>
+      <span>Audit log</span><span>·</span>
+      <span>Bulk row actions</span><span>·</span>
+      <span>Slot-machine stat morph</span><span>·</span>
+      <span>3D tilt cards</span><span>·</span>
+      <span>Magnetic CTAs</span><span>·</span>
+      <span>Calendar cascade</span><span>·</span>
+      <span>Skeleton loaders</span><span>·</span>
+      <span>Notifications bell</span><span>·</span>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="hero-stats">
+  {# These cards are auto-tilted (.stat) and auto-revealed by base.html #}
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <div class="stat-lbl">Patients managed</div>
+    <div class="stat-val" data-count="{{ stats_demo.patients }}">{{ stats_demo.patients }}</div>
+    <div class="stat-delta">Live demo data</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+    <div class="stat-lbl">Clinicians on staff</div>
+    <div class="stat-val" data-count="{{ stats_demo.doctors }}">{{ stats_demo.doctors }}</div>
+    <div class="stat-delta">Across departments</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+    <div class="stat-lbl">Appointments tracked</div>
+    <div class="stat-val" data-count="{{ stats_demo.appointments }}">{{ stats_demo.appointments }}</div>
+    <div class="stat-delta">All-time</div>
+  </div>
+  <div class="stat stat--ai">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg></div>
+    <div class="stat-lbl">Avg AI confidence</div>
+    <div class="stat-val"><span data-count="{{ stats_demo.avg_confidence }}">{{ stats_demo.avg_confidence }}</span><span class="unit">%</span></div>
+    <div class="stat-delta">Stable</div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <header class="section-head">
+    <div class="eyebrow">What's inside</div>
+    <h2 class="section-title">Six features that feel <span class="hero-grad">good to use</span>.</h2>
+  </header>
+
+  <div class="features-grid">
+    <article class="panel feature-card tilt">
+      <div class="feature-ico" style="background:var(--sage-wash);color:var(--sage-deep)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg>
+      </div>
+      <h3>AI diagnosis with confidence</h3>
+      <p>Every appointment gets a one-shot LangChain prediction. Confidence below 50% surfaces in the notifications bell automatically.</p>
+    </article>
+
+    <article class="panel feature-card tilt">
+      <div class="feature-ico" style="background:var(--clay-wash);color:var(--clay-deep)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <h3>Page-aware chatbot</h3>
+      <p>Tool-using assistant that knows which patient or appointment you're viewing and can search records, schedules, and AI history on demand.</p>
+    </article>
+
+    <article class="panel feature-card tilt">
+      <div class="feature-ico" style="background:var(--ai-wash);color:var(--ai-deep)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </div>
+      <h3>Calendar &amp; live search</h3>
+      <p>HTMX live filter on the appointments table; full-month calendar with color-coded chips that link to predictions in one click.</p>
+    </article>
+
+    <article class="panel feature-card tilt">
+      <div class="feature-ico" style="background:var(--wheat-wash);color:var(--wheat-deep)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      </div>
+      <h3>Notifications &amp; audit log</h3>
+      <p>Bell badge highlights low-confidence flags and 24h schedule. Every create / update / delete is recorded automatically and shown on the dashboard.</p>
+    </article>
+
+    <article class="panel feature-card tilt">
+      <div class="feature-ico" style="background:var(--rose-wash);color:var(--rose-deep)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+      </div>
+      <h3>Bulk actions, in style</h3>
+      <p>Multi-select appointments to cancel, complete, or analyze in batch. Skeleton loaders shimmer during HTMX swaps; row cascades reveal new results.</p>
+    </article>
+
+    <article class="panel feature-card tilt">
+      <div class="feature-ico" style="background:rgba(45,212,191,.18);color:#0F766E">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </div>
+      <h3>Light &amp; dark mode</h3>
+      <p>One-tap theme toggle with persisted preference. The whole palette — surfaces, ink, washes, and shadows — re-tones for clinic-night-shift use.</p>
+    </article>
+  </div>
+</section>
+
+<section class="cta-band tilt">
+  <div class="cta-inner">
+    <h2>Ready to take it for a spin?</h2>
+    <p>Sign in with the demo account or create your own — every feature is wired end-to-end.</p>
+    <div class="cta-actions">
+      <a class="btn btn--primary btn--lg magnetic" href="{% url 'login' %}">
+        Sign in
+        <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <a class="btn btn--ghost btn--lg" href="{% url 'register' %}">Create an account</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

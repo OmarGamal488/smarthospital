@@ -1,0 +1,27 @@
+{% extends "hospital/doctor/base.html" %}
+{% block title %}My profile · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">My account</div>
+    <h1 class="page-title">Profile</h1>
+    <p class="page-sub">Update your displayed name, specialty, and contact email.</p>
+  </div>
+</header>
+
+<section class="panel" style="max-width:560px">
+  <div class="panel-head"><h2>Personal details</h2><span class="meta">Doctor #{{ me.pk }}</span></div>
+  <form method="post" class="auth-form" style="padding:16px 20px 20px">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% for err in field.errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <button class="btn btn--primary" type="submit">Save changes</button>
+  </form>
+</section>
+{% endblock %}

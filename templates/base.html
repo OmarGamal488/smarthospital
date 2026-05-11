@@ -1,0 +1,913 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="view-transition" content="same-origin"/>
+  <meta name="chat-context-kind" content="{% block chat_context_kind %}general{% endblock %}"/>
+  <meta name="chat-context-id"   content="{% block chat_context_id %}{% endblock %}"/>
+  <title>{% block title %}SmartHospital{% endblock %}</title>
+  <script>
+    // Apply theme + language before render to avoid flash
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        var lang = localStorage.getItem('lang') || 'en';
+        if (lang === 'ar') {
+          document.documentElement.setAttribute('lang', 'ar');
+          document.documentElement.setAttribute('dir', 'rtl');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}"/>
+</head>
+<body>
+  <div class="app-atmosphere" aria-hidden="true">
+    <div class="bloom bloom-a"></div>
+    <div class="bloom bloom-b"></div>
+    <div class="bloom bloom-c"></div>
+    <div class="pollen"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+
+  <div class="cursor-blob" id="cursor-blob" aria-hidden="true"></div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="{% url 'home' %}">
+        <span class="brand-logo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10"/>
+            <path d="M9 12h2l1-2 2 4 1-2h3"/>
+          </svg>
+        </span>
+        <span class="brand-name"><b>Smart</b><i>Hospital</i></span>
+      </a>
+
+      {% if user.is_authenticated %}
+        {% if user.is_staff %}
+        <div class="nav-links">
+          <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"    href="{% url 'dashboard' %}">Dashboard</a>
+          <a class="nav-link {% if 'department'   in request.resolver_match.url_name %}active{% endif %}" href="{% url 'departments' %}">Departments</a>
+          <a class="nav-link {% if 'doctor'       in request.resolver_match.url_name %}active{% endif %}" href="{% url 'doctors' %}">Doctors</a>
+          <a class="nav-link {% if 'patient'      in request.resolver_match.url_name %}active{% endif %}" href="{% url 'patients' %}">Patients</a>
+          <a class="nav-link {% if 'appointment'  in request.resolver_match.url_name or 'prediction' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'appointments' %}">Appointments</a>
+        </div>
+        {% elif user.doctor %}
+        <div class="nav-links">
+          <a class="nav-link {% if request.resolver_match.url_name == 'doctor_home' %}active{% endif %}" href="{% url 'doctor_home' %}">My schedule</a>
+          <a class="nav-link {% if 'doctor_appointment' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'doctor_appointments' %}">My appointments</a>
+          <a class="nav-link {% if 'doctor_availability' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'doctor_availability' %}">Availability</a>
+          <a class="nav-link {% if 'doctor_profile' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'doctor_profile' %}">Profile</a>
+        </div>
+        {% else %}
+        <div class="nav-links">
+          <a class="nav-link {% if request.resolver_match.url_name == 'patient_home' %}active{% endif %}" href="{% url 'patient_home' %}">My care</a>
+          <a class="nav-link {% if 'patient_book' in request.resolver_match.url_name %}active{% endif %}"  href="{% url 'patient_book' %}">Book</a>
+          <a class="nav-link {% if 'patient_appointment' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'patient_appointments' %}">My appointments</a>
+          <a class="nav-link {% if 'patient_profile' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'patient_profile' %}">Profile</a>
+        </div>
+        {% endif %}
+      {% else %}
+        <div class="nav-links">
+          <a class="nav-link {% if request.resolver_match.url_name == 'services' %}active{% endif %}" href="{% url 'services' %}">Services</a>
+        </div>
+      {% endif %}
+
+      <span class="nav-spacer"></span>
+
+      <span class="status" title="All systems operational"><span class="status-dot"></span>All systems operational</span>
+
+      {% if user.is_authenticated %}
+        <button class="lang-toggle" id="lang-toggle" type="button" aria-label="Toggle language" title="عربي / English">
+          <span class="lang-pill" data-lang-en>EN</span>
+          <span class="lang-pill" data-lang-ar>ع</span>
+        </button>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle dark mode">
+          <svg class="theme-ico theme-ico--sun"  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          <svg class="theme-ico theme-ico--moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <div class="notif-wrap">
+          <button class="notif-bell" id="notif-bell" type="button" aria-label="Notifications" aria-expanded="false"
+                  hx-get="{% url 'notifications' %}" hx-target="#notif-list" hx-swap="innerHTML"
+                  hx-trigger="click">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            <span class="notif-badge" id="notif-badge" hidden>0</span>
+          </button>
+          <div class="notif-dropdown" id="notif-dropdown" aria-hidden="true">
+            <div class="notif-head">
+              <h3>Notifications</h3>
+              <button class="icon-btn" id="notif-refresh" title="Refresh"
+                      hx-get="{% url 'notifications' %}" hx-target="#notif-list" hx-swap="innerHTML">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+              </button>
+            </div>
+            <div id="notif-list">
+              <div class="notif-loading">Loading…</div>
+            </div>
+          </div>
+        </div>
+        <div class="user-pill">
+          <span class="av">{{ user.username|slice:":2"|upper }}</span>
+          <span class="name">{{ user.username }}</span>
+          <form method="post" action="{% url 'logout' %}" style="display:contents">
+            {% csrf_token %}
+            <button type="submit" class="signout" title="Sign out" style="background:none;border:none;cursor:pointer;padding:0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>
+              </svg>
+            </button>
+          </form>
+        </div>
+      {% else %}
+        <a class="signin-link" href="{% url 'login' %}">Sign in
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="arrow"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      {% endif %}
+    </div>
+  </nav>
+
+  {% block banner %}{% endblock %}
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  {# ─── Toast stack ─── #}
+  {% if messages %}
+    <div class="toast-stack">
+      {% for message in messages %}
+        <div class="toast toast--{{ message.tags|default:'success' }}" data-toast>
+          <div class="ico">
+            {% if message.tags == 'error' or message.tags == 'danger' %}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            {% elif message.tags == 'warning' %}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+            {% else %}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+            {% endif %}
+          </div>
+          <div><div class="ttl">{{ message.tags|default:'Notice'|capfirst }}</div><div class="msg">{{ message }}</div></div>
+          <span class="toast-progress" aria-hidden="true"></span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {# ─── Keyboard shortcuts help (press ?) ─── #}
+  <div class="shortcut-help" id="shortcut-help">
+    <div class="shortcut-card">
+      <div class="shortcut-head">
+        <h3>Keyboard shortcuts</h3>
+        <button class="icon-btn" type="button" onclick="document.getElementById('shortcut-help').classList.remove('open')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+      <ul class="shortcut-list">
+        <li><kbd>/</kbd> Focus the search field on this page</li>
+        <li><kbd>n</kbd> New appointment</li>
+        <li><kbd>g</kbd> then <kbd>d</kbd> Go to Dashboard</li>
+        <li><kbd>g</kbd> then <kbd>p</kbd> Go to Patients</li>
+        <li><kbd>g</kbd> then <kbd>a</kbd> Go to Appointments</li>
+        <li><kbd>g</kbd> then <kbd>c</kbd> Go to Calendar</li>
+        <li><kbd>g</kbd> then <kbd>D</kbd> Go to Doctors</li>
+        <li><kbd>?</kbd> Show this help</li>
+        <li><kbd>Esc</kbd> Close any open panel</li>
+      </ul>
+    </div>
+  </div>
+
+  {# ─── Inline delete-confirm modal ─── #}
+  <div class="modal-backdrop" id="delete-modal">
+    <form class="modal" method="post" id="delete-form">
+      {% csrf_token %}
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+        <span style="width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--rose-tint);color:var(--rose-deep)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+        </span>
+        <h3>Delete <span id="delete-name">this record</span>?</h3>
+      </div>
+      <p>This action can't be undone. The record and any linked data will be permanently removed.</p>
+      <div class="modal-row">
+        <button type="button" class="btn btn--ghost" onclick="closeDeleteModal()">Cancel</button>
+        <button type="submit" class="btn btn--danger" style="background:var(--rose);color:#FFFFFF;border-color:var(--rose)">Yes, delete</button>
+      </div>
+    </form>
+  </div>
+
+  {# HTMX + Lucide + Chart.js (vendor-loaded as static) #}
+  <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+  <script src="{% static 'js/lucide.min.js' %}"></script>
+  <script src="{% static 'js/chart.min.js' %}"></script>
+  <script>
+    if (window.lucide && lucide.createIcons) lucide.createIcons();
+
+    // ─── Delete modal helpers ───
+    function openDeleteModal(url, name) {
+      const m = document.getElementById('delete-modal');
+      const f = document.getElementById('delete-form');
+      const n = document.getElementById('delete-name');
+      f.action = url; n.textContent = name; m.classList.add('open');
+    }
+    function closeDeleteModal() {
+      document.getElementById('delete-modal').classList.remove('open');
+    }
+    document.getElementById('delete-modal').addEventListener('click', e => {
+      if (e.target.id === 'delete-modal') closeDeleteModal();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDeleteModal(); });
+
+    // ─── Auto-dismiss toasts + confetti burst on success ───
+    function fireConfetti() {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const cv = document.createElement('canvas');
+      cv.style.cssText = 'position:fixed;inset:0;z-index:300;pointer-events:none';
+      cv.width = window.innerWidth; cv.height = window.innerHeight;
+      document.body.appendChild(cv);
+      const ctx = cv.getContext('2d');
+      const COLORS = ['#059669','#0D9488','#65A30D','#34D399','#5EEAD4','#BEF264'];
+      const N = 90;
+      const P = Array.from({length: N}, () => ({
+        x: cv.width / 2,
+        y: cv.height * 0.4,
+        vx: (Math.random() - 0.5) * 14,
+        vy: (Math.random() * -12) - 4,
+        s: Math.random() * 6 + 4,
+        c: COLORS[Math.floor(Math.random() * COLORS.length)],
+        r: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.3,
+      }));
+      let t0 = performance.now();
+      function step(now) {
+        const dt = (now - t0) / 16; t0 = now;
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        let alive = false;
+        P.forEach(p => {
+          p.vy += 0.35 * dt;
+          p.x += p.vx * dt; p.y += p.vy * dt;
+          p.r += p.vr * dt;
+          if (p.y < cv.height + 30) alive = true;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.r);
+          ctx.fillStyle = p.c;
+          ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
+          ctx.restore();
+        });
+        if (alive) requestAnimationFrame(step);
+        else cv.remove();
+      }
+      requestAnimationFrame(step);
+    }
+
+    document.querySelectorAll('[data-toast]').forEach(t => {
+      if (t.classList.contains('toast--success')) fireConfetti();
+      setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 260); }, 4000);
+    });
+
+    // ─── Stat slot-machine roll ───
+    document.querySelectorAll('[data-count]').forEach(el => {
+      const target  = parseFloat(el.dataset.count) || 0;
+      const isFloat = target % 1 !== 0;
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduced) { el.textContent = isFloat ? target.toFixed(1) : target.toLocaleString(); return; }
+
+      const dur     = 1100;
+      const start   = performance.now();
+      const finalStr = isFloat ? target.toFixed(1) : String(Math.round(target));
+      const digits   = finalStr.length;
+      el.classList.add('stat-rolling');
+
+      const tick = now => {
+        const t = Math.min(1, (now - start) / dur);
+        // ease-out-cubic
+        const eased = 1 - Math.pow(1 - t, 3);
+        if (t < 0.7) {
+          // Slot-machine: random digits, locked-in left-to-right as we approach the end
+          const lockedCount = Math.floor((eased / 0.7) * digits);
+          let out = '';
+          for (let i = 0; i < digits; i++) {
+            const ch = finalStr[i];
+            if (i < lockedCount || ch === '.' || ch === '-') {
+              out += ch;
+            } else {
+              out += String(Math.floor(Math.random() * 10));
+            }
+          }
+          el.textContent = out;
+        } else {
+          // Final 30%: smooth tween to target
+          const localT = (t - 0.7) / 0.3;
+          const v = target * (1 - Math.pow(1 - localT, 2));
+          el.textContent = isFloat ? v.toFixed(1) : Math.round(v).toLocaleString();
+        }
+        if (t < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          el.textContent = isFloat ? target.toFixed(1) : target.toLocaleString();
+          el.classList.remove('stat-rolling');
+          el.classList.add('stat-rolled');
+        }
+      };
+      requestAnimationFrame(tick);
+    });
+
+    // ─── Row hover spotlight (cursor-tracked) ───
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.table tbody').forEach(tb => {
+        tb.addEventListener('mousemove', e => {
+          const tr = e.target.closest('tr'); if (!tr) return;
+          const r = tr.getBoundingClientRect();
+          tr.style.setProperty('--mx', `${e.clientX - r.left}px`);
+          tr.style.setProperty('--my', `${e.clientY - r.top}px`);
+        });
+      });
+    }
+
+    // ─── Number delta flash helper (call window.flashStat(el) when a value changes) ───
+    window.flashStat = function (el) {
+      if (!el) return;
+      el.classList.remove('flash');
+      void el.offsetWidth;
+      el.classList.add('flash');
+    };
+
+    // ─── Portfolio-tier interactions: cursor blob, magnetic buttons,
+    // 3D tilt cards, scroll reveals — all gated by prefers-reduced-motion ───
+    (function () {
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduced) return;
+      const fine = matchMedia('(pointer: fine)').matches;
+
+      // Cursor blob — lerp toward cursor at 60fps
+      const blob = document.getElementById('cursor-blob');
+      if (blob && fine) {
+        let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+        let bx = mx, by = my;
+        document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
+        function frame() {
+          bx += (mx - bx) * 0.12;
+          by += (my - by) * 0.12;
+          blob.style.transform = `translate3d(${bx}px, ${by}px, 0) translate(-50%, -50%)`;
+          requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      // Magnetic buttons — primary / AI buttons gently pull toward cursor
+      if (fine) {
+        document.querySelectorAll('.btn--primary, .btn--ai, .signin-link, .magnetic').forEach(btn => {
+          const radius = 80;
+          btn.addEventListener('mousemove', e => {
+            const r = btn.getBoundingClientRect();
+            const cx = r.left + r.width / 2;
+            const cy = r.top + r.height / 2;
+            const dx = e.clientX - cx;
+            const dy = e.clientY - cy;
+            const dist = Math.hypot(dx, dy);
+            if (dist < radius) {
+              const k = (1 - dist / radius) * 0.35;
+              btn.style.transform = `translate(${dx * k}px, ${dy * k}px)`;
+            }
+          });
+          btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+        });
+      }
+
+      // 3D tilt cards on .stat and any .panel marked .tilt
+      if (fine) {
+        document.querySelectorAll('.stat, .tilt').forEach(card => {
+          const max = 7;  // degrees
+          card.addEventListener('mousemove', e => {
+            const r = card.getBoundingClientRect();
+            const px = (e.clientX - r.left) / r.width;
+            const py = (e.clientY - r.top)  / r.height;
+            const rx = (0.5 - py) * max;
+            const ry = (px - 0.5) * max;
+            card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+            card.style.setProperty('--mx', `${px * 100}%`);
+            card.style.setProperty('--my', `${py * 100}%`);
+          });
+          card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+          });
+        });
+      }
+
+      // Scroll-triggered reveals via IntersectionObserver
+      const reveal = els => {
+        const io = new IntersectionObserver(entries => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              e.target.classList.add('is-revealed');
+              io.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        els.forEach((el, i) => {
+          el.classList.add('reveal');
+          el.style.setProperty('--reveal-i', i);
+          io.observe(el);
+        });
+      };
+      reveal(document.querySelectorAll('.stat-grid > .stat, .chart-grid > .panel, main > .panel, main > section.panel'));
+    })();
+
+    // ─── Dark mode toggle ───
+    (function () {
+      const btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      function apply(theme) {
+        if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        else document.documentElement.removeAttribute('data-theme');
+        try { localStorage.setItem('theme', theme); } catch (e) {}
+      }
+      btn.addEventListener('click', () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        apply(isDark ? 'light' : 'dark');
+      });
+    })();
+
+    // ─── Language toggle (English / Arabic) with RTL ───
+    (function () {
+      const btn = document.getElementById('lang-toggle');
+      if (!btn) return;
+      const AR = {
+        'Dashboard': 'لوحة التحكم',
+        'Departments': 'الأقسام',
+        'Doctors': 'الأطباء',
+        'Patients': 'المرضى',
+        'Appointments': 'المواعيد',
+        'All systems operational': 'كل الأنظمة تعمل',
+        'Sign in': 'تسجيل الدخول',
+        'Notifications': 'الإشعارات',
+        "You're all caught up.": 'لا توجد إشعارات جديدة.',
+        'Loading…': 'جاري التحميل…',
+        'New appointment': 'موعد جديد',
+        'Calendar': 'التقويم',
+        'List view': 'عرض القائمة',
+        'View appointments': 'عرض المواعيد',
+        'Today': 'اليوم',
+        'Last 7 days': 'آخر ٧ أيام',
+        'Last 30 days': 'آخر ٣٠ يوم',
+        'All time': 'كل الأوقات',
+        'Add patient': 'إضافة مريض',
+        'Add doctor': 'إضافة طبيب',
+        'Add department': 'إضافة قسم',
+        'Add appointment': 'إضافة موعد',
+        'Edit': 'تعديل',
+        'Delete': 'حذف',
+        'Cancel': 'إلغاء',
+        'Complete': 'إنهاء',
+        'Analyze': 'تحليل',
+        'Export CSV': 'تصدير CSV',
+        'Recent activity': 'النشاط الأخير',
+        'Recent appointments': 'المواعيد الأخيرة',
+        'View all': 'عرض الكل',
+        'How can I help?': 'كيف يمكنني المساعدة؟',
+        'SmartHospital Assistant': 'مساعد المستشفى الذكي',
+        'Ask anything…': 'اسأل أي شيء…',
+        'Bulk analyze (AI)': 'تحليل جماعي (الذكاء الاصطناعي)',
+      };
+      function apply(lang) {
+        if (lang === 'ar') {
+          document.documentElement.setAttribute('lang', 'ar');
+          document.documentElement.setAttribute('dir', 'rtl');
+        } else {
+          document.documentElement.setAttribute('lang', 'en');
+          document.documentElement.removeAttribute('dir');
+        }
+        // Walk text nodes inside data-i18n-roots and translatable buttons
+        document.querySelectorAll('[data-i18n], .nav-link, .status, .btn, .panel-head h2, .lang-toggle [data-lang-en], .lang-toggle [data-lang-ar]').forEach(el => {
+          const orig = el.getAttribute('data-i18n-orig') || el.textContent.trim();
+          if (!el.getAttribute('data-i18n-orig')) el.setAttribute('data-i18n-orig', orig);
+          if (lang === 'ar' && AR[orig]) {
+            // Preserve any nested SVGs by only replacing the leading text node
+            const tn = Array.from(el.childNodes).find(n => n.nodeType === 3 && n.nodeValue.trim());
+            if (tn) tn.nodeValue = ' ' + AR[orig] + ' ';
+            else el.textContent = AR[orig];
+          } else {
+            const tn = Array.from(el.childNodes).find(n => n.nodeType === 3 && n.nodeValue.trim());
+            if (tn) tn.nodeValue = ' ' + orig + ' ';
+          }
+        });
+        try { localStorage.setItem('lang', lang); } catch (e) {}
+        btn.setAttribute('data-current', lang);
+      }
+      // Initial apply on load
+      const saved = (function () { try { return localStorage.getItem('lang'); } catch (e) { return null; }})() || 'en';
+      apply(saved);
+      btn.addEventListener('click', () => {
+        const cur = btn.getAttribute('data-current') === 'ar' ? 'en' : 'ar';
+        apply(cur);
+      });
+    })();
+
+    // ─── Keyboard shortcuts ───
+    (function () {
+      const ROUTES = {
+        d: '/dashboard/',
+        p: '/patients/',
+        a: '/appointments/',
+        c: '/appointments/calendar/',
+        D: '/doctors/',
+      };
+      let prefix = null, prefixT = 0;
+      function isTyping() {
+        const t = document.activeElement;
+        if (!t) return false;
+        const tag = t.tagName;
+        return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || t.isContentEditable;
+      }
+      document.addEventListener('keydown', e => {
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        // Always available even while typing
+        if (e.key === 'Escape') {
+          const help = document.getElementById('shortcut-help');
+          if (help && help.classList.contains('open')) {
+            help.classList.remove('open');
+            return;
+          }
+        }
+        if (isTyping()) return;
+        const k = e.key;
+        const now = Date.now();
+
+        // Two-key sequence: g + d/p/a/c
+        if (prefix === 'g' && (now - prefixT) < 1500) {
+          const route = ROUTES[k];
+          if (route) {
+            e.preventDefault();
+            window.location.href = route;
+          }
+          prefix = null;
+          return;
+        }
+        if (k === 'g') {
+          prefix = 'g'; prefixT = now;
+          return;
+        }
+        prefix = null;
+
+        // Single keys
+        if (k === '/') {
+          const search = document.querySelector('input[type="search"], input[name="q"]');
+          if (search) { e.preventDefault(); search.focus(); search.select(); }
+        } else if (k === 'n') {
+          e.preventDefault();
+          window.location.href = '/appointments/add/';
+        } else if (k === '?' || (k === '/' && e.shiftKey)) {
+          e.preventDefault();
+          document.getElementById('shortcut-help').classList.add('open');
+        }
+      });
+    })();
+
+    // ─── Notifications dropdown ───
+    (function () {
+      const wrap   = document.querySelector('.notif-wrap');
+      const bell   = document.getElementById('notif-bell');
+      const dd     = document.getElementById('notif-dropdown');
+      const badge  = document.getElementById('notif-badge');
+      if (!wrap || !bell || !dd) return;
+
+      function toggle(open) {
+        const isOpen = open !== undefined ? open : !dd.classList.contains('open');
+        dd.classList.toggle('open', isOpen);
+        dd.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+        bell.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      }
+      bell.addEventListener('click', () => toggle());
+      document.addEventListener('click', e => {
+        if (!wrap.contains(e.target)) toggle(false);
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') toggle(false);
+      });
+
+      function refreshBadge() {
+        fetch('/notifications/count/', { credentials: 'same-origin' })
+          .then(r => r.ok ? r.json() : Promise.reject())
+          .then(data => {
+            const n = data.count || 0;
+            if (n > 0) { badge.textContent = String(n); badge.hidden = false; }
+            else       { badge.hidden = true; }
+          })
+          .catch(() => {});
+      }
+      refreshBadge();
+      setInterval(refreshBadge, 60000);
+
+      // Live updates via WebSocket — refresh the bell badge when an audit event
+      // arrives, prepend new events to the dashboard activity panel.
+      try {
+        const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const ws = new WebSocket(proto + location.host + '/ws/updates/');
+        ws.addEventListener('message', e => {
+          let data; try { data = JSON.parse(e.data); } catch (_) { return; }
+          if (data.type !== 'audit') return;
+          refreshBadge();
+          // If a recent activity panel is on this page, prepend a new row
+          const list = document.querySelector('.audit-list');
+          if (list) {
+            const li = document.createElement('li');
+            li.className = 'audit-item audit--' + data.action + ' audit-live';
+            li.style.setProperty('--i', '0');
+            li.innerHTML =
+              '<span class="audit-ico">' +
+                (data.action === 'create'  ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>' :
+                 data.action === 'update'  ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>' :
+                 data.action === 'delete'  ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>' :
+                 '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg>') +
+              '</span>' +
+              '<div class="audit-body">' +
+                '<div class="audit-summary"><b>' + data.action.charAt(0).toUpperCase()+data.action.slice(1) + '</b> ' +
+                  data.kind + ' · ' + (data.summary || '').replace(/[<>]/g, '') + '</div>' +
+                '<div class="audit-meta">' + (data.user || 'system') + ' · just now · live</div>' +
+              '</div>';
+            // Prepend, then trim to 10
+            list.insertBefore(li, list.firstChild);
+            while (list.children.length > 10) list.removeChild(list.lastChild);
+          }
+        });
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+  {% block extra_scripts %}{% endblock %}
+
+  {% if user.is_authenticated %}
+  {# ─── Chatbot FAB + slide-over panel ─── #}
+  <button class="chat-fab" id="chat-fab" type="button" aria-label="Open assistant">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    <span class="chat-fab-pulse" aria-hidden="true"></span>
+  </button>
+
+  <aside class="chat-panel" id="chat-panel" aria-hidden="true" aria-label="SmartHospital assistant">
+    <header class="chat-head">
+      <div class="chat-id">
+        <span class="chat-avatar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg>
+        </span>
+        <div>
+          <div class="chat-title">SmartHospital Assistant</div>
+          <div class="chat-sub" id="chat-context-label">General</div>
+        </div>
+      </div>
+      <div class="chat-head-actions">
+        <button class="icon-btn" id="chat-reset" title="New conversation" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        </button>
+        <button class="icon-btn" id="chat-close" title="Close" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="chat-body" id="chat-body" aria-live="polite">
+      <div class="chat-empty" id="chat-empty">
+        <div class="chat-empty-ico">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg>
+        </div>
+        <h3>How can I help?</h3>
+        <p>Ask about patients, appointments, AI predictions, or general clinic stats.</p>
+        <div class="chat-quick" id="chat-quick"></div>
+      </div>
+    </div>
+
+    <form class="chat-form" id="chat-form" autocomplete="off">
+      <div class="chat-input-wrap">
+        <textarea id="chat-input" rows="1" maxlength="2000" placeholder="Ask anything…" aria-label="Message"></textarea>
+        <button class="chat-send" type="submit" aria-label="Send">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        </button>
+      </div>
+      <div class="chat-foot">
+        <span class="chat-hint" id="chat-status">AI may make mistakes — verify important details.</span>
+      </div>
+    </form>
+  </aside>
+
+  <script>
+  (function () {
+    const fab    = document.getElementById('chat-fab');
+    const panel  = document.getElementById('chat-panel');
+    const body   = document.getElementById('chat-body');
+    const empty  = document.getElementById('chat-empty');
+    const quick  = document.getElementById('chat-quick');
+    const form   = document.getElementById('chat-form');
+    const input  = document.getElementById('chat-input');
+    const status = document.getElementById('chat-status');
+    const ctxLbl = document.getElementById('chat-context-label');
+    const resetBtn = document.getElementById('chat-reset');
+    const closeBtn = document.getElementById('chat-close');
+
+    if (!fab || !panel) return;
+
+    const kind = document.querySelector('meta[name="chat-context-kind"]')?.content || 'general';
+    const cid  = document.querySelector('meta[name="chat-context-id"]')?.content || '';
+
+    const labelMap = {
+      general:    'General',
+      dashboard:  'Dashboard view',
+      patient:    'Patient context',
+      appointment:'Appointment context',
+    };
+    ctxLbl.textContent = labelMap[kind] || 'General';
+
+    const QUICK = {
+      patient: [
+        'Summarize this patient',
+        'What were the last 3 visits?',
+        'Suggest follow-up questions',
+      ],
+      appointment: [
+        'Explain the AI diagnosis',
+        'Draft visit notes',
+        'What tests should I order?',
+      ],
+      dashboard: [
+        'How busy are we today?',
+        'Top diagnoses this month',
+        'Find a patient',
+      ],
+      general: [
+        'How many patients do we have?',
+        'Find a doctor by specialty',
+        'Show today’s schedule',
+      ],
+    };
+
+    let sessionId = null;
+    let busy = false;
+
+    function getCookie(name) {
+      const v = ('; ' + document.cookie).split('; ' + name + '=');
+      return v.length === 2 ? decodeURIComponent(v.pop().split(';').shift()) : '';
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+    }
+    function renderMd(text) {
+      let h = escapeHtml(text);
+      h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      h = h.replace(/(^|\W)\*([^*\n]+)\*/g, '$1<em>$2</em>');
+      h = h.replace(/`([^`]+)`/g, '<code>$1</code>');
+      // Auto-linkify entity references: "patient #12", "appointment #4", "Dr. Smith"
+      h = h.replace(/\bpatient #(\d+)/gi,    '<a class="chat-link" href="/patients/$1/">patient #$1</a>');
+      h = h.replace(/\bappointment #(\d+)/gi,'<a class="chat-link" href="/appointments/$1/predictions/">appointment #$1</a>');
+      h = h.replace(/\bdoctor #(\d+)/gi,     '<a class="chat-link" href="/doctors/$1/">doctor #$1</a>');
+      h = h.replace(/\n/g, '<br/>');
+      return h;
+    }
+
+    function appendMsg(role, content) {
+      empty.style.display = 'none';
+      const div = document.createElement('div');
+      div.className = 'chat-msg chat-msg--' + role;
+      div.innerHTML = '<div class="chat-bubble">' + renderMd(content) + '</div>';
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+      return div;
+    }
+
+    function appendThinking() {
+      empty.style.display = 'none';
+      const div = document.createElement('div');
+      div.className = 'chat-msg chat-msg--assistant chat-msg--thinking';
+      div.innerHTML = '<div class="chat-bubble"><span class="chat-dots"><i></i><i></i><i></i></span></div>';
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+      return div;
+    }
+
+    function renderQuick() {
+      quick.innerHTML = '';
+      (QUICK[kind] || QUICK.general).forEach(q => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chat-quick-chip';
+        b.textContent = q;
+        b.addEventListener('click', () => { input.value = q; input.focus(); autoSize(); });
+        quick.appendChild(b);
+      });
+    }
+
+    function autoSize() {
+      input.style.height = 'auto';
+      input.style.height = Math.min(140, input.scrollHeight) + 'px';
+    }
+
+    async function openSession() {
+      try {
+        const url = '/chat/open/?kind=' + encodeURIComponent(kind) + (cid ? '&id=' + encodeURIComponent(cid) : '');
+        const r = await fetch(url, { credentials: 'same-origin' });
+        if (!r.ok) throw new Error('open failed');
+        const data = await r.json();
+        sessionId = data.session_id;
+        body.querySelectorAll('.chat-msg').forEach(n => n.remove());
+        if (data.messages && data.messages.length) {
+          empty.style.display = 'none';
+          data.messages.forEach(m => appendMsg(m.role, m.content));
+        } else {
+          empty.style.display = '';
+          renderQuick();
+        }
+      } catch (e) {
+        status.textContent = 'Could not load chat session.';
+      }
+    }
+
+    async function sendMessage(text) {
+      if (!sessionId || busy) return;
+      busy = true;
+      appendMsg('user', text);
+      const thinking = appendThinking();
+      status.textContent = 'Thinking…';
+      try {
+        const r = await fetch('/chat/' + sessionId + '/send/', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: JSON.stringify({ message: text }),
+        });
+        const data = await r.json();
+        thinking.remove();
+        if (!r.ok) {
+          appendMsg('assistant', '_Error: ' + (data.error || 'something went wrong') + '_');
+        } else {
+          appendMsg('assistant', data.reply || '(empty reply)');
+          status.textContent = 'AI may make mistakes — verify important details.';
+        }
+      } catch (e) {
+        thinking.remove();
+        appendMsg('assistant', '_Network error — please try again._');
+      } finally {
+        busy = false;
+      }
+    }
+
+    async function resetSession() {
+      if (!sessionId) return;
+      try {
+        await fetch('/chat/' + sessionId + '/reset/', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        });
+      } catch (e) { /* ignore */ }
+      body.querySelectorAll('.chat-msg').forEach(n => n.remove());
+      empty.style.display = '';
+      renderQuick();
+      status.textContent = 'AI may make mistakes — verify important details.';
+    }
+
+    function open() {
+      panel.classList.add('open');
+      panel.setAttribute('aria-hidden', 'false');
+      fab.classList.add('hidden');
+      localStorage.setItem('chat-open', '1');
+      if (sessionId === null) openSession();
+      setTimeout(() => input.focus(), 200);
+    }
+    function close() {
+      panel.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+      fab.classList.remove('hidden');
+      localStorage.setItem('chat-open', '0');
+    }
+
+    fab.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    resetBtn.addEventListener('click', resetSession);
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      autoSize();
+      sendMessage(text);
+    });
+    input.addEventListener('input', autoSize);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        form.requestSubmit();
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && panel.classList.contains('open')) close();
+    });
+
+    renderQuick();
+    if (localStorage.getItem('chat-open') === '1') open();
+  })();
+  </script>
+  {% endif %}
+</body>
+</html>

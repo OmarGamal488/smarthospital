@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Our services · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">Care directory</div>
+    <h1 class="page-title">Our specialties</h1>
+    <p class="page-sub">Browse departments and clinicians. Sign in or register to book.</p>
+  </div>
+  <div class="page-actions">
+    {% if not user.is_authenticated %}
+    <a class="btn btn--ghost" href="{% url 'patient_login' %}">Patient sign in</a>
+    <a class="btn btn--primary magnetic" href="{% url 'patient_register' %}">Register</a>
+    {% endif %}
+  </div>
+</header>
+
+<section class="features-grid">
+  {% for d in departments %}
+    <a class="panel feature-card tilt" href="{% url 'services_department' d.pk %}">
+      <div class="feature-ico" style="background:var(--sage-wash);color:var(--sage-deep)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
+      </div>
+      <h3>{{ d.name }}</h3>
+      <p>{{ d.description|default:"Specialist care." }}</p>
+      <span class="meta" style="margin-top:8px">{{ d.doctors.count }} doctor{{ d.doctors.count|pluralize }}</span>
+    </a>
+  {% endfor %}
+</section>
+{% endblock %}

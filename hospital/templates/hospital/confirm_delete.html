@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Confirm delete · SmartHospital{% endblock %}
+
+{% block content %}
+<section style="display:grid;place-items:center;padding-top:var(--space-10)">
+  <div class="panel" style="max-width:440px;width:100%">
+    <div class="panel-body" style="text-align:center">
+      <div style="width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--rose-tint);color:var(--rose-deep);margin:0 auto var(--space-4)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+      </div>
+      <h2 style="margin:0 0 6px;font-size:22px;font-weight:700;letter-spacing:-.01em;color:var(--ink)">Delete {{ object_label }}?</h2>
+      <p style="color:var(--ink-3);margin:0 0 var(--space-5)">This action can't be undone. The record and any linked data will be permanently removed.</p>
+      <form method="post" style="display:flex;gap:10px;justify-content:center">
+        {% csrf_token %}
+        <a class="btn btn--ghost" href="{% if cancel_url %}{% url cancel_url %}{% else %}/{% endif %}">Cancel</a>
+        <button class="btn" type="submit" style="background:var(--rose);color:#FFFFFF;border-color:var(--rose)">Yes, delete</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

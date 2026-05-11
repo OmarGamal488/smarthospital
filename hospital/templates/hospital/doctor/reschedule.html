@@ -1,0 +1,55 @@
+{% extends "hospital/doctor/base.html" %}
+{% block title %}Reschedule appointment · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow"><a href="{% url 'doctor_appointment_detail' appt.pk %}" style="color:inherit">← Back</a></div>
+    <h1 class="page-title">Reschedule with {{ appt.patient.name }}</h1>
+    <p class="page-sub">Currently on <b>{{ appt.date_time|date:"l, M j · g:i A" }}</b></p>
+  </div>
+</header>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Pick a new day</h2>
+    <span class="meta">{{ next_days|length }} day{{ next_days|pluralize }} with openings</span>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;padding:16px 20px">
+    {% for d in next_days %}
+      <a class="chat-quick-chip {% if d == target_date %}is-active-day{% endif %}"
+         href="?date={{ d|date:'Y-m-d' }}"
+         style="{% if d == target_date %}background:var(--sage-tint);color:var(--sage-deep);border-color:var(--sage-tint){% endif %}">
+        {{ d|date:"D, M j" }}
+      </a>
+    {% empty %}
+      <span class="meta">No openings in the next two weeks.</span>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>{{ target_date|date:"l, F j" }}</h2>
+    <span class="meta">{{ slots|length }} slot{{ slots|pluralize }}</span>
+  </div>
+  {% if slots %}
+  <form method="post" class="book-confirm-form">
+    {% csrf_token %}
+    <div class="slot-grid">
+      {% for s in slots %}
+        <label class="slot-chip {% if s == appt.date_time %}is-current{% endif %}">
+          <input type="radio" name="slot" value="{{ s|date:'c' }}" required {% if s == appt.date_time %}checked{% endif %}/>
+          <span>{{ s|date:"g:i A" }}{% if s == appt.date_time %} · current{% endif %}</span>
+        </label>
+      {% endfor %}
+    </div>
+    <div style="padding:0 20px 20px">
+      <button class="btn btn--primary btn--lg" type="submit">Confirm new time</button>
+    </div>
+  </form>
+  {% else %}
+  <div class="empty" style="padding:32px"><h3>No openings on this day</h3></div>
+  {% endif %}
+</section>
+{% endblock %}

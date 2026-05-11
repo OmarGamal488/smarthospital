@@ -1,0 +1,227 @@
+[
+  {
+    "name": "Hypertension (essential)",
+    "icd10": "I10",
+    "summary": "Chronically elevated blood pressure (systolic ≥130 or diastolic ≥80 mmHg). Major risk factor for stroke, heart disease, and kidney disease. Often asymptomatic; diagnosis confirmed with multiple readings on different days.",
+    "symptoms": "Often silent. May present with headache, dizziness, blurred vision, or epistaxis at very high readings.",
+    "first_steps": "Lifestyle: low-sodium diet (DASH), 150 min/week moderate exercise, weight loss, alcohol moderation. First-line meds: thiazide, ACE inhibitor, ARB, or calcium-channel blocker.",
+    "red_flags": "BP >180/120 with chest pain, neurologic deficit, or vision change → hypertensive emergency, ER now.",
+    "keywords": ["high blood pressure", "BP", "essential hypertension", "HTN"]
+  },
+  {
+    "name": "Type 2 diabetes mellitus",
+    "icd10": "E11",
+    "summary": "Insulin resistance with relative insulin deficiency. Diagnosed by HbA1c ≥6.5%, fasting glucose ≥126 mg/dL, or 2-h OGTT ≥200 mg/dL. Lifelong condition; complications include retinopathy, nephropathy, neuropathy, CV disease.",
+    "symptoms": "Polyuria, polydipsia, fatigue, blurred vision, slow-healing wounds. Often discovered on routine labs.",
+    "first_steps": "Metformin first-line. Lifestyle: weight loss 5-10%, low-glycemic diet, 150 min/week activity. Add GLP-1 RA or SGLT2i if CV/renal risk.",
+    "red_flags": "HHS or DKA: severe hyperglycemia + altered mental status → ER.",
+    "keywords": ["diabetes", "T2D", "high blood sugar", "HbA1c", "insulin resistance"]
+  },
+  {
+    "name": "Migraine without aura",
+    "icd10": "G43.009",
+    "summary": "Recurrent unilateral, throbbing, moderate-to-severe headaches lasting 4-72h, often with nausea/photophobia. Common in women; frequently misdiagnosed as tension headache.",
+    "symptoms": "Pulsating one-sided pain, nausea, vomiting, sensitivity to light/sound, worsened by routine activity.",
+    "first_steps": "Acute: NSAID + triptan. Preventive (≥4 attacks/mo): propranolol, topiramate, or amitriptyline. Avoid triggers (sleep deprivation, dehydration, alcohol).",
+    "red_flags": "Sudden 'thunderclap' headache, fever + neck stiffness, focal deficits → urgent imaging / ER.",
+    "keywords": ["headache", "throbbing", "migraine", "photophobia"]
+  },
+  {
+    "name": "Tension-type headache",
+    "icd10": "G44.20",
+    "summary": "Bilateral, pressing/tightening, mild-to-moderate headache. Most common headache type. Triggered by stress, poor posture, sleep loss, or eyestrain.",
+    "symptoms": "Bandlike pressure around the head, no nausea/photophobia (or only mild), not worsened by activity.",
+    "first_steps": "Acetaminophen or NSAID; address triggers. Chronic (≥15 days/mo) → amitriptyline preventive, behavioral therapy.",
+    "red_flags": "Sudden severe headache, neurologic deficit, fever, papilledema → urgent eval.",
+    "keywords": ["headache", "stress", "tension", "bandlike"]
+  },
+  {
+    "name": "GERD (gastroesophageal reflux disease)",
+    "icd10": "K21.9",
+    "summary": "Chronic acid reflux causing heartburn or regurgitation ≥2/week. Risk factors: obesity, hiatal hernia, smoking, late meals.",
+    "symptoms": "Burning chest pain after meals, sour taste, regurgitation, chronic cough, hoarseness.",
+    "first_steps": "Lifestyle: weight loss, head-of-bed elevation, avoid late meals, reduce alcohol/caffeine. PPI 8 weeks; H2 blocker if mild.",
+    "red_flags": "Dysphagia, weight loss, GI bleeding, anemia → endoscopy to rule out malignancy/Barrett's.",
+    "keywords": ["heartburn", "reflux", "acid", "regurgitation", "GERD"]
+  },
+  {
+    "name": "Asthma — mild persistent",
+    "icd10": "J45.30",
+    "summary": "Reversible airway inflammation with bronchospasm. Mild persistent: symptoms >2x/week (not daily), nocturnal awakening 3-4x/month.",
+    "symptoms": "Wheeze, breathlessness, chest tightness, cough — often nocturnal or exercise-induced.",
+    "first_steps": "Low-dose ICS daily + SABA as needed (or SABA + ICS in single inhaler 'reliever'). Avoid known triggers.",
+    "red_flags": "Severe exacerbation: silent chest, accessory muscle use, SpO2 <92%, peak flow <50% → ER.",
+    "keywords": ["asthma", "wheeze", "shortness of breath", "inhaler", "reactive airway"]
+  },
+  {
+    "name": "Upper respiratory tract infection",
+    "icd10": "J06.9",
+    "summary": "Viral infection of nose, throat, sinuses. Self-limiting in 7-10 days. >200 viruses, mostly rhinoviruses.",
+    "symptoms": "Sore throat, runny nose, nasal congestion, mild fever, cough, malaise.",
+    "first_steps": "Supportive: hydration, rest, acetaminophen/NSAIDs, saline nasal spray. Antibiotics not indicated.",
+    "red_flags": "Fever >39°C >3 days, severe ear pain, chest pain, dyspnea, stiff neck → re-evaluate (bacterial, pneumonia, meningitis).",
+    "keywords": ["URI", "common cold", "sore throat", "rhinitis", "viral"]
+  },
+  {
+    "name": "Acute pharyngitis (strep)",
+    "icd10": "J02.0",
+    "summary": "Bacterial throat infection by Group A Streptococcus. Centor criteria: fever, tonsillar exudate, anterior cervical lymphadenopathy, absence of cough.",
+    "symptoms": "Severe sore throat, fever, painful swallowing, tonsillar exudate, tender nodes.",
+    "first_steps": "Rapid antigen test or culture; if positive → 10 days oral penicillin V or amoxicillin.",
+    "red_flags": "Drooling, stridor, voice change → epiglottitis or peritonsillar abscess, ER.",
+    "keywords": ["strep throat", "tonsillitis", "GAS", "pharyngitis"]
+  },
+  {
+    "name": "Lower back pain (mechanical)",
+    "icd10": "M54.5",
+    "summary": "Most common cause of chronic pain. 80% of adults experience it. Usually self-limited (4-6 weeks). 'Mechanical' = related to posture/load, not radicular.",
+    "symptoms": "Aching pain in lumbar region worsening with movement, often after lifting.",
+    "first_steps": "Stay active, NSAIDs short course, physical therapy. Imaging only if red flags.",
+    "red_flags": "Bowel/bladder dysfunction, saddle anesthesia (cauda equina), severe trauma, fever + IV drug use → urgent imaging.",
+    "keywords": ["LBP", "back pain", "lumbar", "mechanical"]
+  },
+  {
+    "name": "Osteoarthritis (knee)",
+    "icd10": "M17.9",
+    "summary": "Wear-related cartilage degeneration. Primary OA: idiopathic, age >50, BMI >25.",
+    "symptoms": "Joint pain worse with use, stiffness <30 min in morning, crepitus, reduced range of motion.",
+    "first_steps": "Weight loss, quadriceps strengthening, NSAIDs prn, intra-articular steroid for flares. Refer for arthroplasty if conservative measures fail.",
+    "red_flags": "Acute hot swollen joint with fever → septic arthritis, urgent aspiration.",
+    "keywords": ["OA", "osteoarthritis", "knee pain", "joint pain", "stiffness"]
+  },
+  {
+    "name": "Generalized anxiety disorder",
+    "icd10": "F41.1",
+    "summary": "Excessive worry on most days for ≥6 months affecting function. Lifetime prevalence ~5-10%.",
+    "symptoms": "Restlessness, fatigue, poor concentration, irritability, muscle tension, sleep disturbance.",
+    "first_steps": "CBT first-line. SSRI (escitalopram, sertraline) or SNRI (venlafaxine). Limit benzodiazepines short-term only.",
+    "red_flags": "Suicidal ideation, severe functional impairment → urgent psychiatric referral.",
+    "keywords": ["anxiety", "worry", "GAD", "panic", "stress"]
+  },
+  {
+    "name": "Major depressive disorder",
+    "icd10": "F32.9",
+    "summary": "Persistent sadness or anhedonia + ≥4 other symptoms for ≥2 weeks. PHQ-9 ≥10 indicates moderate.",
+    "symptoms": "Low mood, anhedonia, sleep/appetite change, fatigue, guilt, poor concentration, suicidal thoughts.",
+    "first_steps": "CBT or interpersonal therapy. SSRI (sertraline, escitalopram) first-line. Reassess in 4-6 weeks.",
+    "red_flags": "Active suicidal plan/intent, psychosis, severe self-neglect → emergency psychiatric eval.",
+    "keywords": ["depression", "MDD", "low mood", "anhedonia", "PHQ-9"]
+  },
+  {
+    "name": "Iron-deficiency anemia",
+    "icd10": "D50.9",
+    "summary": "Most common anemia globally. Microcytic, hypochromic. Confirmed by low ferritin (<30 ng/mL).",
+    "symptoms": "Fatigue, pallor, dyspnea on exertion, pica, restless legs, koilonychia.",
+    "first_steps": "Oral iron 65 mg elemental daily for 3 months, take with vitamin C. Investigate cause: GI bleed, menorrhagia, malabsorption.",
+    "red_flags": "Hb <7 g/dL with symptoms → transfusion. Unexplained iron-deficiency in adult >50 → colonoscopy.",
+    "keywords": ["anemia", "iron deficiency", "fatigue", "pallor", "ferritin"]
+  },
+  {
+    "name": "Vitamin D deficiency",
+    "icd10": "E55.9",
+    "summary": "Serum 25(OH)D <20 ng/mL. Risk: limited sun exposure, dark skin, obesity, malabsorption.",
+    "symptoms": "Often asymptomatic. May cause bone pain, muscle weakness, fatigue.",
+    "first_steps": "50,000 IU vitamin D2 weekly × 8 weeks, then 1000-2000 IU daily maintenance. Recheck at 3 months.",
+    "red_flags": "Hypocalcemic seizures or tetany → urgent IV calcium + calcitriol.",
+    "keywords": ["vitamin D", "deficiency", "calcidiol", "bone pain"]
+  },
+  {
+    "name": "Allergic rhinitis",
+    "icd10": "J30.9",
+    "summary": "IgE-mediated nasal inflammation in response to allergens (pollen, dust mites, pet dander).",
+    "symptoms": "Sneezing, clear rhinorrhea, nasal congestion, itchy eyes, postnasal drip.",
+    "first_steps": "Avoid trigger. Intranasal steroid (fluticasone, mometasone) is most effective. Add second-gen antihistamine (loratadine, cetirizine).",
+    "red_flags": "Unilateral symptoms, bloody discharge, severe facial pain → ENT referral.",
+    "keywords": ["allergy", "rhinitis", "hay fever", "sneezing", "congestion"]
+  },
+  {
+    "name": "Atopic dermatitis (eczema)",
+    "icd10": "L20.9",
+    "summary": "Chronic relapsing pruritic dermatitis with atopic predisposition. Onset usually <5 years old.",
+    "symptoms": "Dry, itchy, erythematous patches. Children: face/extensors. Adults: flexures.",
+    "first_steps": "Daily emollients, low/medium-potency topical steroid for flares (1-2 weeks), avoid known triggers.",
+    "red_flags": "Widespread weeping lesions (eczema herpeticum) → urgent dermatology / ID.",
+    "keywords": ["eczema", "atopic dermatitis", "itch", "rash", "skin"]
+  },
+  {
+    "name": "Contact dermatitis (allergic)",
+    "icd10": "L23.9",
+    "summary": "Type IV hypersensitivity to contact allergen (nickel, fragrance, poison ivy). Patch testing is diagnostic.",
+    "symptoms": "Erythematous, vesicular, intensely pruritic eruption confined to area of contact.",
+    "first_steps": "Identify and avoid allergen. Topical steroid 2-3 weeks. Severe → short oral prednisone taper.",
+    "red_flags": "Widespread or facial involvement, secondary infection.",
+    "keywords": ["contact dermatitis", "rash", "nickel allergy", "patch test"]
+  },
+  {
+    "name": "Stable angina",
+    "icd10": "I20.8",
+    "summary": "Chest discomfort due to coronary insufficiency, predictable with exertion, relieved by rest or nitroglycerin within 5 min.",
+    "symptoms": "Substernal pressure radiating to jaw/left arm, dyspnea, diaphoresis.",
+    "first_steps": "ASA + statin. Beta-blocker first-line antianginal. Sublingual nitroglycerin for episodes. Stress test or angiography.",
+    "red_flags": "Pain >20 min, at rest, or new onset → ACS, ER.",
+    "keywords": ["chest pain", "angina", "CAD", "coronary"]
+  },
+  {
+    "name": "Heart failure (preserved EF)",
+    "icd10": "I50.30",
+    "summary": "Symptoms of CHF with LVEF ≥50% and evidence of diastolic dysfunction. Common in elderly with HTN, AF, obesity.",
+    "symptoms": "Dyspnea on exertion, orthopnea, fatigue, ankle edema.",
+    "first_steps": "Diuretic for volume overload, SGLT2i (empagliflozin) reduces HF hospitalizations. Aggressive HTN control.",
+    "red_flags": "Acute decompensation: pulmonary edema → ER.",
+    "keywords": ["heart failure", "HFpEF", "edema", "dyspnea"]
+  },
+  {
+    "name": "Atrial fibrillation",
+    "icd10": "I48.91",
+    "summary": "Most common sustained arrhythmia. Risk: HTN, age, valvular disease, alcohol, hyperthyroidism. Major stroke risk.",
+    "symptoms": "Palpitations, fatigue, dyspnea — or asymptomatic.",
+    "first_steps": "Rate vs rhythm control. Stroke prevention: CHA2DS2-VASc ≥2 → DOAC. ECG, TSH, echo workup.",
+    "red_flags": "Hypotension, chest pain, syncope, new heart failure → urgent rhythm control.",
+    "keywords": ["AFib", "atrial fibrillation", "irregular heartbeat", "palpitations"]
+  },
+  {
+    "name": "Pneumonia (community-acquired)",
+    "icd10": "J18.9",
+    "summary": "Lung parenchymal infection in non-hospitalized patient. Most common: S. pneumoniae, M. pneumoniae, viruses.",
+    "symptoms": "Productive cough, fever, dyspnea, pleuritic chest pain, crackles on exam.",
+    "first_steps": "Outpatient if CURB-65 ≤1: amoxicillin or doxycycline 5-7 days. Inpatient if hypoxia, sepsis, comorbidity.",
+    "red_flags": "RR >30, SpO2 <92%, BP <90/60, altered mental status → admit.",
+    "keywords": ["pneumonia", "CAP", "lung infection", "cough", "fever"]
+  },
+  {
+    "name": "Acute bronchitis",
+    "icd10": "J20.9",
+    "summary": "Self-limiting tracheobronchial inflammation, usually viral. Cough lasts 1-3 weeks.",
+    "symptoms": "Productive cough, chest discomfort, mild fever, no consolidation on exam.",
+    "first_steps": "Supportive only — NO antibiotics for uncomplicated viral bronchitis. Reassess if symptoms persist >3 weeks.",
+    "red_flags": "Dyspnea, hemoptysis, fever >38.5°C with rigors → CXR to rule out pneumonia.",
+    "keywords": ["bronchitis", "cough", "viral"]
+  },
+  {
+    "name": "Urinary tract infection (uncomplicated)",
+    "icd10": "N39.0",
+    "summary": "Bladder infection in healthy non-pregnant women, no urologic anomaly. E. coli most common.",
+    "symptoms": "Dysuria, urgency, frequency, suprapubic pain. No fever or flank pain.",
+    "first_steps": "Nitrofurantoin 100 mg BID × 5 days, or fosfomycin single dose. Hydration.",
+    "red_flags": "Fever, flank pain, vomiting → pyelonephritis, may need IV antibiotics.",
+    "keywords": ["UTI", "cystitis", "dysuria", "bladder infection"]
+  },
+  {
+    "name": "Hypothyroidism",
+    "icd10": "E03.9",
+    "summary": "Underactive thyroid. Most common cause: Hashimoto's autoimmune thyroiditis. Diagnosed by elevated TSH.",
+    "symptoms": "Fatigue, cold intolerance, constipation, weight gain, dry skin, hair loss, bradycardia.",
+    "first_steps": "Levothyroxine titrated to TSH 1-2.5 mIU/L. Recheck TSH in 6-8 weeks.",
+    "red_flags": "Myxedema coma: hypothermia, altered mental status → ICU.",
+    "keywords": ["hypothyroid", "Hashimoto", "low thyroid", "TSH"]
+  },
+  {
+    "name": "Pediatric otitis media",
+    "icd10": "H66.90",
+    "summary": "Middle-ear infection in children, usually following URI. Peak age 6-24 months.",
+    "symptoms": "Ear pain, irritability, fever, decreased hearing, ear pulling in toddlers, possible otorrhea.",
+    "first_steps": "Watchful waiting 48-72 h if mild and >2 yr. Amoxicillin 80-90 mg/kg/day if severe, bilateral, or <2 yr.",
+    "red_flags": "Mastoiditis (post-auricular tenderness/erythema), facial palsy → ENT.",
+    "keywords": ["otitis media", "ear infection", "pediatric", "earache"]
+  }
+]

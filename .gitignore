@@ -1,0 +1,26 @@
+# Environment variables — NEVER commit real values
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Django
+db.sqlite3
+*.log
+
+# uv / virtualenv
+.venv/
+.uv/
+
+# IDE
+.vscode/
+.idea/
+
+# Claude Code local notes — never push
+CLAUDE.md
+.claude/
+.claude-*/

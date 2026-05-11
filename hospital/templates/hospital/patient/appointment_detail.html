@@ -1,0 +1,97 @@
+{% extends "hospital/patient/base.html" %}
+{% block title %}Appointment #{{ appt.pk }} · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">
+      <a href="{% url 'patient_appointments' %}" style="color:inherit">My appointments</a> · #{{ appt.pk }}
+    </div>
+    <h1 class="page-title">{{ appt.date_time|date:"l, M j · g:i A" }}</h1>
+    <p class="page-sub">Dr. {{ appt.doctor.name }} · {{ appt.doctor.department.name }}</p>
+  </div>
+  <div class="page-actions">
+    {% if appt.status == 'Scheduled' and appt.date_time > now %}
+      <a class="btn btn--ghost" href="{% url 'patient_appointment_reschedule' appt.pk %}">Reschedule</a>
+      <form method="post" action="{% url 'patient_appointment_cancel' appt.pk %}" style="display:inline"
+            onsubmit="return confirm('Cancel this appointment?')">
+        {% csrf_token %}
+        <button class="btn btn--ghost" type="submit" style="color:var(--rose-deep)">Cancel appointment</button>
+      </form>
+    {% endif %}
+    {% if appt.status == 'Completed' %}
+      <a class="btn btn--primary" href="{% url 'patient_appointment_rate' appt.pk %}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        {% if appt.rating %}Update rating ({{ appt.rating.stars }}★){% else %}Rate this visit{% endif %}
+      </a>
+    {% endif %}
+  </div>
+</header>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Visit details</h2>
+    {% if appt.status == 'Completed' %}<span class="pill pill--ok"><span class="dot"></span>{{ appt.status }}</span>
+    {% elif appt.status == 'Canceled' %}<span class="pill pill--err"><span class="dot"></span>{{ appt.status }}</span>
+    {% else %}<span class="pill pill--wrn"><span class="dot"></span>{{ appt.status }}</span>{% endif %}
+  </div>
+  <div style="padding:16px 20px">
+    <div class="eyebrow">Reason</div>
+    <p style="margin:6px 0 0">{{ appt.reason }}</p>
+  </div>
+</section>
+
+{% if appt.visit_note %}
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>Doctor's notes</h2>
+    <span class="meta">Saved {{ appt.visit_note.updated_at|date:"M j, Y" }}</span>
+  </div>
+  <div style="padding:16px 20px">
+    {% if appt.visit_note.note %}
+      <div class="eyebrow">Clinical notes</div>
+      <p style="margin:6px 0 12px;white-space:pre-line">{{ appt.visit_note.note }}</p>
+    {% endif %}
+    {% if appt.visit_note.prescription %}
+      <div class="eyebrow">Prescription</div>
+      <p style="margin:6px 0 12px;white-space:pre-line;font-family:var(--font-mono,monospace);background:var(--cream-2);padding:10px 12px;border-radius:8px">{{ appt.visit_note.prescription }}</p>
+    {% endif %}
+    {% if appt.visit_note.follow_up_needed %}
+      <div class="pill pill--wrn"><span class="dot"></span>Follow-up needed{% if appt.visit_note.follow_up_date %} by {{ appt.visit_note.follow_up_date|date:"M j, Y" }}{% endif %}</div>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+{% if predictions %}
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>AI notes</h2>
+    <span class="meta">{{ predictions|length }} run{{ predictions|length|pluralize }}</span>
+  </div>
+  <div class="patient-timeline">
+    {% for p in predictions %}
+      <div class="tl-item">
+        <div class="tl-dot {% if p.status == 'SUCCESS' %}ok{% else %}err{% endif %}"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div class="tl-when">{{ p.created_at|date:"M j, g:i A" }}</div>
+            {% if p.status == 'SUCCESS' %}
+              <span class="conf">
+                <span class="conf-track"><span class="conf-bar {% if p.confidence_score < 0.5 %}conf-bar-low{% endif %}" style="width: {% widthratio p.confidence_score 1 100 %}%"></span></span>
+                <span class="conf-pct">{% widthratio p.confidence_score 1 100 %}%</span>
+              </span>
+            {% else %}
+              <span class="pill pill--err"><span class="dot"></span>Failed</span>
+            {% endif %}
+          </div>
+          <div class="tl-pred-text" style="margin-top:8px">
+            {% if p.status == 'SUCCESS' %}{{ p.predicted_diagnosis }}{% else %}{{ p.error_message|default:"Unknown error" }}{% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

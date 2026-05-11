@@ -1,0 +1,70 @@
+{% extends "hospital/patient/base.html" %}
+{% block title %}My appointments · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">My care</div>
+    <h1 class="page-title">My appointments</h1>
+    <p class="page-sub">All your scheduled, completed, and canceled visits.</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn--primary" href="{% url 'patient_book' %}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Book new
+    </a>
+  </div>
+</header>
+
+<section class="panel">
+  <div class="patient-timeline">
+    {% for a in appointments %}
+      <div class="tl-item">
+        <div class="tl-dot {% if a.status == 'Completed' %}ok{% elif a.status == 'Canceled' %}err{% else %}wrn{% endif %}"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div>
+              <div class="tl-when">{{ a.date_time|date:"l, M j, Y · g:i A" }}</div>
+              <div class="tl-doc">Dr. {{ a.doctor.name }} · {{ a.doctor.department.name }}</div>
+            </div>
+            {% if a.status == 'Completed' %}<span class="pill pill--ok"><span class="dot"></span>{{ a.status }}</span>
+            {% elif a.status == 'Canceled' %}<span class="pill pill--err"><span class="dot"></span>{{ a.status }}</span>
+            {% else %}<span class="pill pill--wrn"><span class="dot"></span>{{ a.status }}</span>{% endif %}
+          </div>
+          {% if a.reason %}<div class="tl-reason">{{ a.reason }}</div>{% endif %}
+          {% with p=a.latest_prediction %}
+            {% if p %}
+              <div class="tl-pred">
+                <div class="tl-pred-row">
+                  <span class="eyebrow" style="margin:0">AI Note</span>
+                  <span class="conf">
+                    <span class="conf-track"><span class="conf-bar {% if p.confidence_score < 0.5 %}conf-bar-low{% endif %}" style="width: {% widthratio p.confidence_score 1 100 %}%"></span></span>
+                    <span class="conf-pct">{% widthratio p.confidence_score 1 100 %}%</span>
+                  </span>
+                </div>
+                <div class="tl-pred-text">{{ p.predicted_diagnosis|truncatechars:140 }}</div>
+              </div>
+            {% endif %}
+          {% endwith %}
+          <div class="tl-actions">
+            <a class="btn btn--ghost btn--sm" href="{% url 'patient_appointment_detail' a.pk %}">Details</a>
+            {% if a.status == 'Scheduled' and a.date_time > now %}
+              <form method="post" action="{% url 'patient_appointment_cancel' a.pk %}" style="display:inline"
+                    onsubmit="return confirm('Cancel this appointment?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn--ghost btn--sm" style="color:var(--rose-deep)">Cancel</button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty" style="padding:40px">
+        <h3>You haven't booked any appointments yet</h3>
+        <p>Pick a specialty and book your first visit.</p>
+        <a class="btn btn--primary" style="margin-top:8px" href="{% url 'patient_book' %}">Book now</a>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

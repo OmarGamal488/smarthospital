@@ -1,0 +1,100 @@
+{% extends "hospital/doctor/base.html" %}
+{% block title %}My availability · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">Doctor · Hours</div>
+    <h1 class="page-title">My availability</h1>
+    <p class="page-sub">Weekly recurring windows during which patients can book a slot, plus specific calendar dates you're off.</p>
+  </div>
+</header>
+
+<section class="panel">
+  <div class="panel-head"><h2>Weekly windows</h2><span class="meta">{{ windows|length }} window{{ windows|length|pluralize }}</span></div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Weekday</th><th>Start</th><th>End</th><th>Slot</th><th class="cell-actions">Actions</th></tr></thead>
+      <tbody>
+        {% for w in windows %}
+        <tr>
+          <td>{{ w.get_weekday_display }}</td>
+          <td>{{ w.start_time|date:"g:i A" }}</td>
+          <td>{{ w.end_time|date:"g:i A" }}</td>
+          <td>{{ w.slot_minutes }} min</td>
+          <td class="cell-actions">
+            <form method="post" action="{% url 'doctor_availability_delete' w.pk %}" style="display:inline" onsubmit="return confirm('Remove this window?')">
+              {% csrf_token %}
+              <button class="icon-btn danger" type="submit" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+          <tr><td colspan="5"><div class="empty" style="padding:24px"><h3>No availability set</h3><p>Add a window below so patients can book you.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel" style="margin-top:var(--space-4);max-width:560px">
+  <div class="panel-head"><h2>Add a window</h2></div>
+  <form method="post" class="auth-form" style="padding:16px 20px 20px">
+    {% csrf_token %}
+    <input type="hidden" name="form_kind" value="avail"/>
+    {% for field in form %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% for err in field.errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <button class="btn btn--primary" type="submit">Add window</button>
+  </form>
+</section>
+
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>Days off</h2>
+    <span class="meta">{{ time_off|length }} upcoming day{{ time_off|length|pluralize }} off</span>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Date</th><th>Day</th><th>Reason</th><th class="cell-actions">Actions</th></tr></thead>
+      <tbody>
+        {% for o in time_off %}
+        <tr>
+          <td><b>{{ o.date|date:"M j, Y" }}</b></td>
+          <td>{{ o.date|date:"l" }}</td>
+          <td style="color:var(--ink-3)">{{ o.reason|default:"—" }}</td>
+          <td class="cell-actions">
+            <form method="post" action="{% url 'doctor_timeoff_delete' o.pk %}" style="display:inline" onsubmit="return confirm('Re-open this day for bookings?')">
+              {% csrf_token %}
+              <button class="icon-btn danger" type="submit" title="Re-open this day"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+          <tr><td colspan="4"><div class="empty" style="padding:24px"><h3>No upcoming days off</h3><p>Block a date below to prevent patients from booking on that day.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel" style="margin-top:var(--space-4);max-width:560px">
+  <div class="panel-head"><h2>Block a date (day off)</h2></div>
+  <form method="post" class="auth-form" style="padding:16px 20px 20px">
+    {% csrf_token %}
+    <input type="hidden" name="form_kind" value="off"/>
+    {% for field in timeoff_form %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% for err in field.errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <button class="btn btn--primary" type="submit">Block this date</button>
+  </form>
+</section>
+{% endblock %}

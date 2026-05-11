@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Server error · SmartHospital{% endblock %}
+{% block content %}
+<section class="error-shell">
+  <div class="error-card">
+    <div class="error-code">500</div>
+    <h1>Something went wrong on our side.</h1>
+    <p>The clinic system hit an unexpected error. We've logged it — please try again in a moment.</p>
+    <div class="error-actions">
+      <a class="btn btn--primary magnetic" href="{% url 'home' %}">Take me home</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

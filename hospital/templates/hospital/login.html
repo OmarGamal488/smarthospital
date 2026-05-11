@@ -1,0 +1,689 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sign in · SmartHospital · The Botanical Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Public+Sans:ital,wght@0,300..800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --forest:        #022C22;
+      --forest-2:      #043D30;
+      --forest-line:   rgba(167, 243, 208, .07);
+      --moss:          #064E3B;
+      --emerald:       #10B981;
+      --emerald-deep:  #047857;
+      --chartreuse:    #BEF264;
+      --gold:          #D4A845;
+      --parchment:     #F5F1E4;
+      --parchment-2:   #ECE6D2;
+      --parchment-ink: #1A2A22;
+      --hair:          #2B4A3E;
+      --hair-light:    #C9C0A6;
+
+      --serif:  "Fraunces", "Times New Roman", serif;
+      --sans:   "Public Sans", system-ui, sans-serif;
+      --mono:   "JetBrains Mono", ui-monospace, monospace;
+
+      --ease:    cubic-bezier(.22, 1, .36, 1);
+      --ease-2:  cubic-bezier(.65, .05, .36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body{
+      height: 100vh; height: 100dvh;
+      font-family: var(--sans);
+      color: #E8F0EA;
+      background: var(--forest);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Atmosphere: multi-layer animated background ── */
+    .atmosphere{ position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+
+    /* Base topographic concentric rings — slowly rotating */
+    .topo{
+      position: absolute; inset: -10%;
+      background:
+        repeating-radial-gradient(circle at 70% 30%, transparent 0, transparent 60px, var(--forest-line) 60px, var(--forest-line) 61px),
+        var(--forest);
+      mask-image: radial-gradient(ellipse at center, #000 30%, rgba(0,0,0,.7) 80%);
+      animation: spin 240s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Two large drifting blooms that orbit slowly */
+    .bloom{
+      position: absolute;
+      width: 70vw; height: 70vw;
+      max-width: 900px; max-height: 900px;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: .55;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+    .bloom-a{
+      background: radial-gradient(circle, rgba(16,185,129,.45) 0%, transparent 65%);
+      top: -25%; left: -20%;
+      animation: driftA 26s var(--ease-2) infinite;
+    }
+    .bloom-b{
+      background: radial-gradient(circle, rgba(190,242,100,.32) 0%, transparent 65%);
+      bottom: -30%; right: -25%;
+      animation: driftB 32s var(--ease-2) infinite;
+    }
+    .bloom-c{
+      width: 50vw; height: 50vw;
+      max-width: 600px; max-height: 600px;
+      background: radial-gradient(circle, rgba(212,168,69,.18) 0%, transparent 60%);
+      top: 30%; left: 35%;
+      animation: driftC 38s var(--ease-2) infinite;
+    }
+    @keyframes driftA {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(8vw, 6vh) scale(1.08); }
+      66%  { transform: translate(2vw, 10vh) scale(.95); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+    @keyframes driftB {
+      0%   { transform: translate(0, 0) scale(1); }
+      40%  { transform: translate(-6vw, -8vh) scale(1.1); }
+      75%  { transform: translate(-3vw, 4vh) scale(.92); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
+    @keyframes driftC {
+      0%   { transform: translate(-50%, -50%) scale(1); opacity:.4 }
+      50%  { transform: translate(-30%, -40%) scale(1.15); opacity:.65 }
+      100% { transform: translate(-50%, -50%) scale(1); opacity:.4 }
+    }
+
+    /* Faint scanning vertical line of light — slow sweep */
+    .scan{
+      position: absolute; top: 0; bottom: 0; width: 280px;
+      left: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(190,242,100,.04) 45%, rgba(190,242,100,.07) 50%, rgba(190,242,100,.04) 55%, transparent 100%);
+      mix-blend-mode: screen;
+      animation: sweep 18s var(--ease-2) infinite;
+    }
+    @keyframes sweep {
+      0%   { transform: translateX(-100%); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateX(100vw); opacity: 0; }
+    }
+
+    /* Floating "pollen" particles drifting up */
+    .pollen{ position: absolute; inset: 0; }
+    .pollen i{
+      position: absolute;
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: var(--chartreuse);
+      box-shadow: 0 0 8px var(--chartreuse), 0 0 16px rgba(190,242,100,.4);
+      opacity: 0;
+      animation: rise-fall 14s linear infinite;
+    }
+    .pollen i:nth-child(1)  { left: 8%;  animation-delay: 0s;   animation-duration: 16s; }
+    .pollen i:nth-child(2)  { left: 18%; animation-delay: 2s;   animation-duration: 14s; }
+    .pollen i:nth-child(3)  { left: 28%; animation-delay: 5s;   animation-duration: 18s; }
+    .pollen i:nth-child(4)  { left: 36%; animation-delay: 1s;   animation-duration: 13s; width: 2px; height: 2px; }
+    .pollen i:nth-child(5)  { left: 44%; animation-delay: 7s;   animation-duration: 20s; }
+    .pollen i:nth-child(6)  { left: 52%; animation-delay: 3s;   animation-duration: 15s; width: 2px; height: 2px; }
+    .pollen i:nth-child(7)  { left: 62%; animation-delay: 9s;   animation-duration: 17s; }
+    .pollen i:nth-child(8)  { left: 70%; animation-delay: 4s;   animation-duration: 22s; width: 4px; height: 4px; }
+    .pollen i:nth-child(9)  { left: 78%; animation-delay: 6s;   animation-duration: 14s; }
+    .pollen i:nth-child(10) { left: 88%; animation-delay: 11s;  animation-duration: 19s; }
+    .pollen i:nth-child(11) { left: 95%; animation-delay: 8s;   animation-duration: 16s; width: 2px; height: 2px; }
+    @keyframes rise-fall {
+      0%   { bottom: -10px;  opacity: 0;  transform: translateX(0); }
+      8%   { opacity: .7; }
+      50%  { transform: translateX(20px); }
+      92%  { opacity: .7; }
+      100% { bottom: 110%;  opacity: 0;  transform: translateX(-12px); }
+    }
+
+    .vignette{
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 100%, rgba(0,0,0,.45), transparent 70%),
+        radial-gradient(ellipse 100% 30% at 50% 0%,   rgba(0,0,0,.3),  transparent 70%);
+    }
+    .grain{
+      position: absolute; inset: 0;
+      opacity: .35; mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.45 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+    /* ── Layout shell — fills viewport ── */
+    .shell{
+      position: relative; z-index: 1;
+      height: 100vh; height: 100dvh;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 0;
+    }
+
+    /* ── Editorial header bar (top of page, both columns) ── */
+    .ledger-bar{
+      position: absolute; top: 0; left: 0; right: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 28px 56px;
+      font: 500 11px/1 var(--mono);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(232, 240, 234, .55);
+      z-index: 10;
+    }
+    .ledger-bar .pip{
+      display: inline-block; width: 6px; height: 6px; border-radius: 999px;
+      background: var(--chartreuse); margin-right: 9px;
+      vertical-align: 1px;
+      box-shadow: 0 0 12px var(--chartreuse);
+      animation: blink 3.2s var(--ease-2) infinite;
+    }
+    @keyframes blink { 0%, 60%, 100% { opacity: 1 } 80% { opacity: .25 } }
+    .ledger-bar a{ color: inherit; text-decoration: none; border-bottom: 1px solid rgba(232,240,234,.2); padding-bottom: 1px; }
+    .ledger-bar a:hover{ color: var(--chartreuse); border-bottom-color: var(--chartreuse); }
+
+    /* ── LEFT: editorial title side — distributes between top/center/bottom ── */
+    .editorial{
+      position: relative;
+      padding: 88px 56px 56px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .eyebrow{
+      font: 500 11px/1.2 var(--mono);
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--chartreuse);
+      margin-bottom: 28px;
+      display: inline-flex; align-items: center; gap: 12px;
+      opacity: 0; animation: rise .9s var(--ease) .15s forwards;
+    }
+    .eyebrow::before, .eyebrow::after{
+      content: ""; height: 1px; width: 32px; background: var(--chartreuse);
+      opacity: .55;
+    }
+
+    .display{
+      font-family: var(--serif);
+      font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 0;
+      color: #F4F8F5;
+      line-height: 0.92;
+      letter-spacing: -.024em;
+      font-size: clamp(54px, 7.4vw, 108px);
+      font-weight: 380;
+      margin: 0;
+      max-width: 13ch;
+      align-self: center;
+    }
+    .display .word{ display: inline-block; opacity: 0; transform: translateY(28px); animation: rise .9s var(--ease) forwards; }
+    .display .ital{
+      font-style: italic;
+      font-variation-settings: "opsz" 144, "SOFT" 70, "WONK" 1;
+      color: var(--chartreuse);
+    }
+    .display .word:nth-child(1){ animation-delay: .35s; }
+    .display .word:nth-child(2){ animation-delay: .50s; }
+    .display .word:nth-child(3){ animation-delay: .65s; }
+    .display .word:nth-child(4){ animation-delay: .80s; }
+    .display .word:nth-child(5){ animation-delay: .95s; }
+
+    .standfirst{
+      font-family: var(--serif);
+      font-style: italic;
+      font-variation-settings: "opsz" 28, "SOFT" 100;
+      font-size: 16px;
+      line-height: 1.55;
+      color: rgba(232, 240, 234, .72);
+      margin: 0;
+      max-width: 36ch;
+      opacity: 0; animation: rise .9s var(--ease) 1.2s forwards;
+    }
+    .standfirst::before{
+      content: "—";
+      color: var(--chartreuse);
+      font-style: normal;
+      margin-right: 10px;
+      letter-spacing: .04em;
+    }
+
+    /* ── Editorial footer row: botanical + credit + standfirst ── */
+    .editorial-foot{
+      display: grid;
+      grid-template-columns: 200px 1fr auto;
+      align-items: end;
+      gap: 40px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(167,243,208,.12);
+    }
+    .botanical{
+      width: 180px; height: 220px;
+      pointer-events: none;
+      opacity: 0; animation: fade .9s var(--ease) 1.5s forwards;
+    }
+    .botanical svg{ width: 100%; height: 100%; overflow: visible; }
+    .botanical path{
+      fill: none;
+      stroke: var(--chartreuse);
+      stroke-width: 1.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 1200;
+      stroke-dashoffset: 1200;
+      animation: draw 2.4s var(--ease-2) 1.6s forwards;
+    }
+    .botanical path:nth-child(2){ stroke: var(--emerald); animation-delay: 1.85s; stroke-dasharray: 800; stroke-dashoffset: 800;}
+    .botanical path:nth-child(3){ stroke: var(--emerald); opacity: .6; animation-delay: 2.05s; stroke-dasharray: 600; stroke-dashoffset: 600;}
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+
+    /* ── Editorial credit (bottom-right of left column) ── */
+    .credit{
+      font: 500 10px/1.5 var(--mono);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(232,240,234,.42);
+      text-align: right;
+      max-width: 22ch;
+      opacity: 0; animation: rise .9s var(--ease) 1.6s forwards;
+    }
+    .credit b{ color: var(--chartreuse); font-weight: 500; }
+
+    /* ── RIGHT: parchment login plate fills its column ── */
+    .plate-wrap{
+      position: relative;
+      padding: 88px 56px 56px;
+      display: flex;
+      height: 100%;
+    }
+    .plate-rule{
+      position: absolute; top: 88px; bottom: 56px; left: 0;
+      width: 1px; background: linear-gradient(to bottom, transparent, var(--hair) 20%, var(--hair) 80%, transparent);
+      opacity: .9;
+    }
+
+    .plate{
+      width: 100%;
+      flex: 1;
+      background: var(--parchment);
+      color: var(--parchment-ink);
+      border-radius: 4px;
+      padding: 44px 44px 32px;
+      position: relative;
+      display: flex; flex-direction: column;
+      box-shadow:
+        0 1px 0 rgba(0,0,0,.04),
+        0 30px 60px -20px rgba(0,0,0,.55),
+        0 50px 100px -40px rgba(0,0,0,.4);
+      transform: translateY(28px); opacity: 0;
+      animation: plateIn 1s var(--ease) .6s forwards;
+      overflow: hidden;
+    }
+    @keyframes plateIn { to { opacity: 1; transform: translateY(0); } }
+
+    /* paper grain on plate */
+    .plate::before{
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='1' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.16  0 0 0 0 0.13  0 0 0 0.05 0'/></filter><rect width='100%' height='100%' filter='url(%23p)'/></svg>");
+      opacity: .6; mix-blend-mode: multiply;
+    }
+
+    /* corner decorations */
+    .plate::after{
+      content: ""; position: absolute;
+      top: 14px; right: 14px;
+      width: 28px; height: 28px;
+      border-top: 1px solid var(--hair-light);
+      border-right: 1px solid var(--hair-light);
+    }
+    .plate-corner-bl{
+      position: absolute;
+      bottom: 14px; left: 14px;
+      width: 28px; height: 28px;
+      border-bottom: 1px solid var(--hair-light);
+      border-left: 1px solid var(--hair-light);
+    }
+
+    .plate-meta{
+      display: flex; justify-content: space-between; align-items: center;
+      font: 500 10px/1 var(--mono);
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #6E7A6F;
+      margin-bottom: 28px;
+    }
+
+    .plate-mark{
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .plate-mark .seal{
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 1px solid var(--moss);
+      display: grid; place-items: center;
+      color: var(--moss);
+    }
+
+    .plate h2{
+      font-family: var(--serif);
+      font-variation-settings: "opsz" 96, "SOFT" 30;
+      font-size: 34px; font-weight: 380;
+      letter-spacing: -.02em;
+      line-height: 1.05;
+      margin: 0 0 6px;
+      color: var(--parchment-ink);
+    }
+    .plate h2 em{
+      font-style: italic;
+      font-variation-settings: "opsz" 96, "SOFT" 70;
+      color: var(--emerald-deep);
+    }
+    .plate-sub{
+      font-family: var(--serif);
+      font-style: italic;
+      font-variation-settings: "opsz" 24, "SOFT" 90;
+      font-size: 15px;
+      color: #5C6A5E;
+      margin: 0 0 28px;
+      max-width: 36ch;
+    }
+    .plate form{ display: flex; flex-direction: column; flex: 1; }
+
+    /* ── Form fields ── */
+    .field{ position: relative; margin-bottom: 18px; }
+    .field label{
+      display: block;
+      font: 600 10px/1 var(--mono);
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #5C6A5E;
+      margin-bottom: 10px;
+      transition: color .2s var(--ease);
+    }
+    .field label .req{ color: var(--emerald-deep); margin-left: 4px; }
+
+    .field input{
+      width: 100%;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--hair-light);
+      padding: 8px 0 12px;
+      font: 400 18px var(--serif);
+      font-variation-settings: "opsz" 24, "SOFT" 30;
+      color: var(--parchment-ink);
+      transition: border-color .25s var(--ease);
+      outline: none;
+    }
+    .field input:focus{
+      border-bottom-color: var(--emerald-deep);
+    }
+    .field:focus-within label{ color: var(--emerald-deep); }
+    .field input::placeholder{ color: #B5AC92; font-style: italic; }
+
+    .field .hint{
+      position: absolute; right: 0; bottom: 12px;
+      font: 500 9px/1 var(--mono);
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #B5AC92;
+      pointer-events: none;
+    }
+
+    /* ── Submit ── */
+    .actions{
+      display: flex; align-items: center; gap: 16px;
+      margin-top: auto;
+      padding-top: 22px;
+      border-top: 1px dashed var(--hair-light);
+    }
+    .submit{
+      flex: 1;
+      background: var(--moss);
+      color: var(--parchment);
+      border: 0;
+      padding: 18px 22px;
+      border-radius: 2px;
+      font: 600 12px/1 var(--mono);
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex; justify-content: space-between; align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: background .25s var(--ease), letter-spacing .25s var(--ease);
+    }
+    .submit::before{
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 30%, rgba(190,242,100,.18) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform .6s var(--ease);
+    }
+    .submit:hover{ background: #052E22; letter-spacing: .3em; }
+    .submit:hover::before{ transform: translateX(100%); }
+    .submit:active{ transform: translateY(1px); }
+    .submit svg{ width: 14px; height: 14px; transition: transform .25s var(--ease); }
+    .submit:hover svg{ transform: translateX(4px); }
+
+    .alt{
+      font: 400 13px var(--serif);
+      font-style: italic;
+      color: #5C6A5E;
+      white-space: nowrap;
+    }
+    .alt a{
+      color: var(--moss);
+      font-style: normal;
+      font-weight: 500;
+      text-decoration: none;
+      border-bottom: 1px solid var(--moss);
+      padding-bottom: 1px;
+      transition: color .2s, border-color .2s;
+    }
+    .alt a:hover{ color: var(--emerald); border-bottom-color: var(--emerald); }
+
+    /* ── Error ribbon ── */
+    .ribbon{
+      background: #2C0E0A;
+      color: #FECACA;
+      border-left: 3px solid #E11D48;
+      padding: 14px 16px;
+      margin-bottom: 28px;
+      font: 400 13px/1.5 var(--sans);
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .ribbon b{
+      display: block;
+      font: 600 10px/1 var(--mono);
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #FCA5A5;
+      margin-bottom: 4px;
+    }
+
+    /* ── Plate footer signature ── */
+    .signature{
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--hair-light);
+      display: flex; justify-content: space-between; align-items: flex-end;
+      font: 500 9px/1.4 var(--mono);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #8A8775;
+    }
+    .signature .stamp{
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--emerald-deep);
+      border: 1px solid var(--emerald-deep);
+      padding: 4px 8px;
+      border-radius: 99px;
+      font-size: 8px;
+    }
+    .signature .stamp::before{
+      content: ""; width: 5px; height: 5px; border-radius: 999px; background: var(--emerald);
+      box-shadow: 0 0 6px var(--emerald);
+    }
+
+    /* ── Animations ── */
+    @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fade { to { opacity: 1; } }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px){
+      body, .shell{ height: auto; min-height: 100vh; }
+      body{ overflow: auto; }
+      .shell{ grid-template-columns: 1fr; }
+      .plate-rule{ display: none; }
+      .editorial{ padding: 100px 32px 32px; height: auto; }
+      .plate-wrap{ padding: 16px 32px 64px; height: auto; }
+      .editorial-foot{ display: none; }
+    }
+    @media (max-width: 560px){
+      .ledger-bar{ padding: 22px 24px; font-size: 10px; }
+      .ledger-bar .right{ display: none; }
+      .editorial{ padding: 90px 24px 28px; }
+      .plate{ padding: 36px 26px 28px; }
+      .plate-wrap{ padding: 0 24px 56px; }
+      .plate h2{ font-size: 28px; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *, *::before, *::after{ animation: none !important; transition: none !important; }
+      .display .word, .eyebrow, .standfirst, .credit, .plate, .botanical{ opacity: 1; transform: none; }
+      .botanical path{ stroke-dashoffset: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="atmosphere">
+    <div class="topo"></div>
+    <div class="bloom bloom-a"></div>
+    <div class="bloom bloom-b"></div>
+    <div class="bloom bloom-c"></div>
+    <div class="scan"></div>
+    <div class="pollen"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+  </div>
+
+  <header class="ledger-bar">
+    <span class="left"><span class="pip"></span>SmartHospital · Ledger of care · Est. MMXX</span>
+    <span class="right">Vol. MMXXVI / Entry 005 · Authorized personnel</span>
+  </header>
+
+  <div class="shell">
+
+    {# ─── EDITORIAL SIDE ─── #}
+    <section class="editorial">
+      <span class="eyebrow">Issue 005 — A clinical workspace</span>
+
+      <h1 class="display">
+        <span class="word">Quietly</span>
+        <span class="word ital">precise</span>
+        <span class="word">care,</span><br/>
+        <span class="word">in</span>
+        <span class="word ital">green.</span>
+      </h1>
+
+      <div class="editorial-foot">
+        <div class="botanical" aria-hidden="true">
+          <svg viewBox="0 0 220 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+            {# main stem #}
+            <path d="M110 320 C 100 270, 130 240, 110 200 C 90 165, 130 130, 110 95 C 95 65, 120 35, 110 8"/>
+            {# left leaves #}
+            <path d="M110 280 C 80 275, 50 260, 38 232 C 60 240, 88 256, 108 272 M 110 215 C 78 208, 52 188, 44 158 C 70 168, 96 188, 110 208 M 110 150 C 84 142, 60 122, 56 92 C 78 100, 98 122, 110 144"/>
+            {# right leaves #}
+            <path d="M110 245 C 138 238, 162 220, 174 192 C 156 200, 130 218, 112 238 M 110 180 C 138 172, 162 152, 168 122 C 148 130, 124 152, 110 172 M 110 115 C 134 108, 154 88, 158 58 C 138 66, 118 88, 110 110"/>
+          </svg>
+        </div>
+
+        <p class="standfirst">A clinical ledger for departments, doctors, patients, and AI-assisted assessments. Sign in to continue your shift.</p>
+
+        <div class="credit">
+          Botanical illustration<br/>
+          — <b>Folio 005</b><br/>
+          <span style="opacity:.6">Mentha · Salvia · Folium</span>
+        </div>
+      </div>
+    </section>
+
+    {# ─── PLATE SIDE ─── #}
+    <aside class="plate-wrap">
+      <span class="plate-rule"></span>
+
+      <div class="plate">
+        <span class="plate-corner-bl"></span>
+
+        <div class="plate-meta">
+          <span class="plate-mark">
+            <span class="seal">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10"/><path d="M9 12h2l1-2 2 4 1-2h3"/></svg>
+            </span>
+            SmartHospital
+          </span>
+          <span>№ 005 · Sign in</span>
+        </div>
+
+        <h2>Welcome <em>back.</em></h2>
+        <p class="plate-sub">Your shift continues. Enter your credentials to access the ledger.</p>
+
+        {% if form.errors %}
+          <div class="ribbon">
+            <span style="margin-top:1px">⚠</span>
+            <div>
+              <b>Couldn't sign you in</b>
+              Check your username and password and try again.
+            </div>
+          </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+
+          <div class="field">
+            <label for="id_username">Username <span class="req">·</span></label>
+            <input id="id_username" type="text" name="username" autocomplete="username" autofocus required placeholder="dr.idris.khan"/>
+            <span class="hint">Required</span>
+          </div>
+
+          <div class="field">
+            <label for="id_password">Password <span class="req">·</span></label>
+            <input id="id_password" type="password" name="password" autocomplete="current-password" required placeholder="••••••••"/>
+            <span class="hint">Encrypted</span>
+          </div>
+
+          <input type="hidden" name="next" value="{{ next }}"/>
+
+          <div class="actions">
+            <button type="submit" class="submit">
+              <span>Enter the ledger</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <div class="signature">
+            <span class="alt">No account? <a href="{% url 'register' %}">Create one →</a></span>
+            <span class="stamp">Verified</span>
+          </div>
+        </form>
+      </div>
+    </aside>
+  </div>
+
+</body>
+</html>

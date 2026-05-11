@@ -1,0 +1,162 @@
+/* ============================================================================
+   SmartHospital · admin_custom.css
+   Visually aligns the Django admin with the main app.
+   ========================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root, body, body.app, body.dashboard, body.change-list, body.change-form, body.login {
+  --primary: #059669;
+  --secondary: #065F46;
+  --accent: #0D9488;
+  --link-fg: #059669;
+  --link-hover-color: #065F46;
+  --selected-row: #E4EEF2;
+  --header-bg: linear-gradient(135deg, #065F46 0%, #059669 60%, #34D399 100%);
+  --header-color: #FFFFFF;
+  --header-link-color: #FFFFFF;
+  --body-bg: #FFFFFF;
+  --body-fg: #0F1F1A;
+  --body-quiet-color: #4A5D52;
+  --button-bg: #059669;
+  --button-fg: #FFFFFF;
+  --button-hover-bg: #065F46;
+  --default-button-bg: #059669;
+  --default-button-hover-bg: #065F46;
+  --close-button-bg: #4A5D52;
+  --close-button-hover-bg: #0F1F1A;
+  --delete-button-bg: #C44A3D;
+  --delete-button-hover-bg: #9C342A;
+  --object-tools-bg: #0D9488;
+  --object-tools-hover-bg: #0F766E;
+  --border-color: #D6E4DA;
+  --darkened-bg: #E8F0EA;
+}
+
+body { font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important; background: #FFFFFF; color: #0F1F1A; }
+
+#header {
+  background: var(--header-bg) !important;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+  padding: 14px 40px !important;
+  box-shadow: 0 8px 24px -16px rgba(31,36,33,.25);
+}
+#header a:link, #header a:visited, #site-name a, #user-tools a { color: #FFFFFF !important; }
+#site-name { font: 700 17px 'Plus Jakarta Sans' !important; letter-spacing: -.01em; margin: 0; }
+.sh-admin-logo {
+  width: 30px; height: 30px; border-radius: 9px;
+  display: inline-grid; place-items: center;
+  background: linear-gradient(135deg, #059669, #0D9488 60%, #65A30D); color: #FFFFFF;
+  box-shadow: 0 4px 14px -4px rgba(13,148,136,.5);
+}
+
+#user-tools { font-size: 12px; font-weight: 500; }
+#user-tools strong { font-weight: 700; }
+
+.module {
+  background: #FAFCFB !important;
+  border: 1px solid #D6E4DA !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 2px rgba(31,36,33,.04), 0 4px 12px -8px rgba(31,36,33,.06);
+  overflow: hidden;
+}
+.module h2, .module caption, .inline-group h2 {
+  background: #E8F0EA !important;
+  color: #0F1F1A !important;
+  font: 600 12px 'Plus Jakarta Sans' !important;
+  letter-spacing: .06em; text-transform: uppercase;
+  border-bottom: 1px solid #D6E4DA !important;
+  padding: 12px 16px !important;
+}
+
+table { background: transparent; }
+table thead th { background: #E8F0EA !important; color: #4A5D52 !important; font: 600 11px 'Plus Jakarta Sans' !important; letter-spacing: .06em; text-transform: uppercase; padding: 10px 14px !important; border-bottom: 1px solid #D6E4DA !important; }
+table tbody td { padding: 12px 14px !important; border-bottom: 1px solid #D6E4DA !important; font-size: 13px; transition: background .15s ease-out; }
+table tbody tr:hover td { background: #E4EEF2 !important; }
+
+input[type=text], input[type=email], input[type=password], input[type=url], input[type=number],
+input[type=tel], input[type=search], input[type=date], input[type=datetime-local], textarea, select {
+  border: 1px solid #D6E4DA !important;
+  border-radius: 10px !important;
+  padding: 9px 12px !important;
+  background: #FAFCFB !important;
+  color: #0F1F1A !important;
+  font: 400 14px 'Plus Jakarta Sans' !important;
+  transition: border-color .15s ease-out, box-shadow .15s ease-out;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none !important;
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 4px rgba(5,150,105,.20) !important;
+}
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+  background: #059669 !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 9px 16px !important;
+  font: 600 14px 'Plus Jakarta Sans' !important;
+  cursor: pointer;
+  transition: background .2s ease-out, transform .12s ease-out, box-shadow .2s ease-out;
+  box-shadow: 0 1px 2px rgba(31,36,33,.04);
+}
+.button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover {
+  background: #065F46 !important;
+  box-shadow: 0 6px 18px -8px rgba(20,56,71,.55) !important;
+}
+.button:active, input[type=submit]:active { transform: scale(.97); }
+.button.default, input[type=submit].default { background: #059669 !important; }
+.deletelink, a.deletelink {
+  background: #C44A3D !important; color: #FFFFFF !important; border-radius: 10px !important;
+  padding: 9px 14px !important; font-weight: 600 !important;
+}
+.deletelink:hover { background: #9C342A !important; }
+.object-tools a { background: #0D9488 !important; color: #FFFFFF !important; border-radius: 999px !important; padding: 7px 14px !important; font-weight: 600 !important; }
+.object-tools a:hover { background: #0F766E !important; }
+
+#changelist-filter {
+  background: #FAFCFB !important;
+  border: 1px solid #D6E4DA !important;
+  border-radius: 14px !important;
+  padding: 16px !important;
+}
+#changelist-filter h2 { background: transparent !important; color: #0F1F1A !important; padding: 0 0 8px !important; border: none !important; font: 700 12px 'Plus Jakarta Sans' !important; letter-spacing: .08em; text-transform: uppercase; }
+#changelist-filter h3 { font: 600 13px 'Plus Jakarta Sans' !important; color: #4A5D52; margin-top: 14px; }
+#changelist-filter li.selected a { color: #059669 !important; font-weight: 700; }
+
+.paginator { padding: 14px !important; color: #4A5D52; font-weight: 500; }
+.paginator a { background: #FAFCFB !important; border: 1px solid #D6E4DA; border-radius: 8px; padding: 4px 10px; color: #059669 !important; }
+
+a.section, a:link.section, a:visited.section { color: #FFFFFF !important; }
+a:link, a:visited { color: #059669; }
+a:hover { color: #065F46; }
+
+/* breadcrumbs */
+div.breadcrumbs {
+  background: transparent;
+  color: #4A5D52;
+  padding: 14px 40px !important;
+  font-size: 12px;
+  border-bottom: 1px solid #D6E4DA;
+}
+div.breadcrumbs a { color: #059669; }
+
+/* login page */
+body.login { background: linear-gradient(180deg, #FFFFFF, #E8F0EA); }
+body.login #container { background: rgba(255,255,255,.85); backdrop-filter: blur(20px); border-radius: 22px !important; border: 1px solid rgba(255,255,255,.7); box-shadow: 0 24px 48px -16px rgba(31,36,33,.18); padding: 32px 28px !important; max-width: 420px; }
+body.login #header { background: transparent !important; box-shadow: none; padding: 0 0 16px !important; }
+body.login #header #site-name a { color: #0F1F1A !important; }
+body.login .submit-row { padding: 0 !important; background: transparent !important; border: none !important; }
+
+/* messages */
+ul.messagelist li {
+  border-radius: 12px !important;
+  padding: 12px 14px 12px 36px !important;
+  background: #FAFCFB !important;
+  border: 1px solid #D6E4DA !important;
+  border-left: 3px solid #059669 !important;
+  color: #0F1F1A !important;
+  box-shadow: 0 4px 14px -8px rgba(31,36,33,.18);
+}
+ul.messagelist li.error   { border-left-color: #C44A3D !important; }
+ul.messagelist li.warning { border-left-color: #C8861E !important; }

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Not found · SmartHospital{% endblock %}
+{% block content %}
+<section class="error-shell">
+  <div class="error-card">
+    <div class="error-code">404</div>
+    <h1>This page wandered off.</h1>
+    <p>The link is broken or the record no longer exists.</p>
+    <div class="error-actions">
+      <a class="btn btn--primary magnetic" href="{% url 'home' %}">Take me home</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% if items %}
+  <ul class="notif-list">
+    {% for n in items %}
+      <li class="notif-item notif-item--{{ n.kind }}" style="--i:{{ forloop.counter0 }}">
+        <a href="{{ n.url }}">
+          <span class="notif-ico">
+            {% if n.kind == 'low_conf' %}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+            {% else %}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            {% endif %}
+          </span>
+          <div class="notif-body">
+            <div class="notif-title">{{ n.title }}</div>
+            <div class="notif-sub">{{ n.sub }}</div>
+          </div>
+          <span class="notif-when">{{ n.when|timesince|truncatewords:1 }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="notif-empty">
+    <div class="notif-empty-ico">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>
+    </div>
+    <div>You're all caught up.</div>
+  </div>
+{% endif %}

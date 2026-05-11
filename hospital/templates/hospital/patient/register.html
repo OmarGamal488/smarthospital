@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Create your account · SmartHospital{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+  <section class="auth-card">
+    <header class="auth-head">
+      <div class="eyebrow">Patient · Sign up</div>
+      <h1>Create your account</h1>
+      <p>Self-register to book appointments and view your AI-flagged history.</p>
+    </header>
+
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="field-help">{{ field.help_text|safe }}</div>{% endif %}
+          {% for err in field.errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      {% for err in form.non_field_errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+      <button class="btn btn--primary btn--lg magnetic" type="submit">
+        Create account
+        <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </form>
+    <div class="auth-foot">
+      Already have an account?
+      <a href="{% url 'patient_login' %}">Sign in</a>
+    </div>
+  </section>
+</div>
+{% endblock %}

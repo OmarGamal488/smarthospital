@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Calendar · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">Schedule · Calendar</div>
+    <h1 class="page-title">{{ month_label }}</h1>
+    <p class="page-sub">{{ total_in_month }} appointment{{ total_in_month|pluralize }} this month — click a day to see details.</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn--ghost" href="{% url 'appointments' %}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      List view
+    </a>
+    <a class="btn btn--primary" href="{% url 'appointment_create' %}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      New appointment
+    </a>
+  </div>
+</header>
+
+<section class="panel">
+  <div class="panel-head">
+    <div class="cal-nav">
+      <a class="icon-btn" title="Previous month" href="?year={{ prev_y }}&month={{ prev_m }}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      <a class="btn btn--ghost btn--sm" href="{% url 'appointments_calendar' %}">Today</a>
+      <a class="icon-btn" title="Next month" href="?year={{ next_y }}&month={{ next_m }}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+    </div>
+    <span class="meta">{{ month_label }}</span>
+  </div>
+
+  <div class="calendar">
+    <div class="cal-weekdays">
+      {% for w in weekday_labels %}<div class="cal-wd">{{ w }}</div>{% endfor %}
+    </div>
+    <div class="cal-grid">
+      {% for c in cells %}
+        <div class="cal-cell{% if not c.in_month %} muted{% endif %}{% if c.is_today %} today{% endif %}{% if c.count %} has-events{% endif %}" style="--i:{{ forloop.counter0 }}">
+          <div class="cal-day-row">
+            <span class="cal-day-num">{{ c.date.day }}</span>
+            {% if c.count %}<span class="cal-count" title="{{ c.count }} appointment{{ c.count|pluralize }}">{{ c.count }}</span>{% endif %}
+          </div>
+          <div class="cal-events">
+            {% for a in c.preview %}
+              <a class="cal-event {% if a.status == 'Completed' %}ok{% elif a.status == 'Canceled' %}err{% else %}wrn{% endif %}"
+                 href="{% url 'appointment_predictions' a.pk %}"
+                 title="{{ a.date_time|date:'g:i A' }} — {{ a.patient.name }} with Dr. {{ a.doctor.name }}">
+                <span class="cal-event-time">{{ a.date_time|date:"g:i A" }}</span>
+                <span class="cal-event-name">{{ a.patient.name|truncatechars:18 }}</span>
+              </a>
+            {% endfor %}
+            {% if c.overflow %}<span class="cal-more">+{{ c.overflow }} more</span>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="cal-legend">
+  <span><i class="dot wrn"></i>Scheduled</span>
+  <span><i class="dot ok"></i>Completed</span>
+  <span><i class="dot err"></i>Canceled</span>
+  <span><i class="dot today"></i>Today</span>
+</section>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "hospital/patient/base.html" %}
+{% block title %}Pick a time · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">
+      <a href="{% url 'patient_book' %}" style="color:inherit">Specialty</a> ·
+      <a href="{% url 'patient_book_doctor' doctor.department.pk %}" style="color:inherit">Doctor</a> ·
+      Step 3 of 3 · Time
+    </div>
+    <h1 class="page-title">Pick a time with Dr. {{ doctor.name }}</h1>
+    <p class="page-sub">{{ doctor.specialty }} · {{ doctor.department.name }}</p>
+  </div>
+</header>
+
+<div class="book-stepper">
+  <span class="book-step is-done"><b>1</b> Specialty</span>
+  <span class="book-step is-done"><b>2</b> Doctor</span>
+  <span class="book-step is-active"><b>3</b> Time</span>
+</div>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Available days</h2>
+    <span class="meta">Showing {{ next_days|length }} day{{ next_days|pluralize }}</span>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;padding:16px 20px">
+    {% for d in next_days %}
+      <a class="chat-quick-chip {% if d == target_date %}is-active-day{% endif %}"
+         href="?date={{ d|date:'Y-m-d' }}"
+         style="{% if d == target_date %}background:var(--sage-tint);color:var(--sage-deep);border-color:var(--sage-tint){% endif %}">
+        {{ d|date:"D, M j" }}
+      </a>
+    {% empty %}
+      <span class="meta">No availability in the next two weeks. Please check back later.</span>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>{{ target_date|date:"l, F j" }}</h2>
+    <span class="meta">{{ slots|length }} open slot{{ slots|pluralize }}</span>
+  </div>
+
+  {% if slots %}
+  <form method="post" action="{% url 'patient_book_confirm' doctor.pk %}" class="book-confirm-form">
+    {% csrf_token %}
+    <div class="slot-grid">
+      {% for s in slots %}
+        <label class="slot-chip">
+          <input type="radio" name="slot" value="{{ s|date:'c' }}" required/>
+          <span>{{ s|date:"g:i A" }}</span>
+        </label>
+      {% endfor %}
+    </div>
+    <div class="field" style="margin-top:var(--space-4);padding:0 20px 16px">
+      <label for="reason" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <span>Reason for visit</span>
+        <button type="button" id="ai-symptoms-btn" class="btn btn--ai btn--sm" data-doctor="{{ doctor.pk }}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg>
+          <span class="btn-label">AI Complete</span>
+        </button>
+      </label>
+      <textarea name="reason" id="reason" rows="3" required maxlength="500"
+                placeholder="Briefly describe what's bringing you in (e.g. persistent headaches for 2 weeks)…"></textarea>
+      <div class="field-help" id="ai-symptoms-status" style="margin-top:6px;color:var(--ink-4);font-size:12px">
+        Tip — write a few key words about what you feel, then click <b>AI Complete</b> and the assistant will tidy it up.
+      </div>
+    </div>
+    <div style="padding:0 20px 20px">
+      <button class="btn btn--primary btn--lg magnetic" type="submit">
+        Confirm booking
+        <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </form>
+  {% else %}
+    <div class="empty" style="padding:32px">
+      <h3>No slots on this day</h3>
+      <p>Pick another day above, or come back tomorrow.</p>
+    </div>
+  {% endif %}
+</section>
+
+<script>
+  (function () {
+    const btn    = document.getElementById('ai-symptoms-btn');
+    const txt    = document.getElementById('reason');
+    const status = document.getElementById('ai-symptoms-status');
+    if (!btn || !txt) return;
+
+    function getCookie(name) {
+      const v = ('; ' + document.cookie).split('; ' + name + '=');
+      return v.length === 2 ? decodeURIComponent(v.pop().split(';').shift()) : '';
+    }
+
+    btn.addEventListener('click', async () => {
+      const raw = (txt.value || '').trim();
+      if (raw.length < 3) {
+        status.style.color = 'var(--rose-deep)';
+        status.textContent = 'Type at least a few words first, then I can help.';
+        txt.focus();
+        return;
+      }
+      const original = btn.querySelector('.btn-label').textContent;
+      btn.disabled = true;
+      btn.querySelector('.btn-label').textContent = 'Thinking…';
+      btn.classList.add('thinking');
+      status.style.color = 'var(--ink-4)';
+      status.textContent = 'Refining your description…';
+      try {
+        const r = await fetch('{% url "patient_ai_symptoms" %}', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: JSON.stringify({
+            text: raw,
+            doctor_pk: btn.dataset.doctor || null,
+          }),
+        });
+        const data = await r.json();
+        if (data.status === 'SUCCESS' && data.refined) {
+          txt.value = data.refined;
+          txt.style.outline = '2px solid var(--ai, #0D9488)';
+          setTimeout(() => { txt.style.outline = ''; }, 1400);
+          status.style.color = 'var(--sage-deep)';
+          status.textContent = 'AI rewrote your note — review it before booking.';
+        } else {
+          status.style.color = 'var(--rose-deep)';
+          status.textContent = data.error_message || 'Could not refine — please edit manually.';
+        }
+      } catch (e) {
+        status.style.color = 'var(--rose-deep)';
+        status.textContent = 'Network error — please try again.';
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('thinking');
+        btn.querySelector('.btn-label').textContent = original;
+      }
+    });
+  })();
+</script>
+{% endblock %}

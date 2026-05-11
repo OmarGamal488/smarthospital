@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Doctors · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">Care team</div>
+    <h1 class="page-title">Doctors</h1>
+    <p class="page-sub">Clinicians on staff, their specialties, and how to reach them.</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn--primary" href="{% url 'doctor_create' %}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Add doctor
+    </a>
+  </div>
+</header>
+
+<form class="toolbar" method="get">
+  <label class="search">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="search" name="q" placeholder="Search doctors, specialties…" value="{{ request.GET.q }}"/>
+  </label>
+</form>
+
+<section class="panel">
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th class="row-num">#</th><th>Name</th><th>Specialty</th><th>Department</th><th>Email</th><th class="cell-actions">Actions</th></tr></thead>
+      <tbody>
+        {% for doc in doctors %}
+        <tr>
+          <td class="row-num">{{ forloop.counter }}</td>
+          <td>
+            <a href="{% url 'doctor_detail' doc.pk %}" class="av-cell av-cell--link">
+              <span class="av-c">{{ doc.name|slice:":2"|upper }}</span>Dr. {{ doc.name }}
+            </a>
+          </td>
+          <td><span class="specialty">{{ doc.specialty }}</span></td>
+          <td>{{ doc.department.name }}</td>
+          <td style="color:var(--ink-3);font-family:var(--font-mono);font-size:12px">{{ doc.email }}</td>
+          <td class="cell-actions">
+            <a class="icon-btn" title="View details" href="{% url 'doctor_detail' doc.pk %}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></a>
+            <a class="icon-btn" title="Edit" href="{% url 'doctor_edit' doc.pk %}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+            <button class="icon-btn danger" title="Delete" onclick="openDeleteModal('{% url 'doctor_delete' doc.pk %}', 'Dr. {{ doc.name|escapejs }}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">
+          <div class="empty">
+            <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+            <h3>No doctors yet</h3><p>Add a doctor to assign appointments and track their schedule.</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "hospital/pagination.html" with page=doctors extra=page_query %}
+</section>
+{% endblock %}

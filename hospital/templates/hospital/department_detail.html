@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}{{ department.name }} · Department · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow"><a href="{% url 'departments' %}" style="color:inherit">← Departments</a></div>
+    <h1 class="page-title">{{ department.name }}</h1>
+    <p class="page-sub">{{ department.description|default:"—" }}</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn--ghost" href="{% url 'department_edit' department.pk %}">Edit</a>
+    <a class="btn btn--primary" href="{% url 'doctors' %}?q={{ department.name|urlencode }}">View all doctors</a>
+  </div>
+</header>
+
+<section class="stat-grid">
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <div class="stat-lbl">Doctors</div>
+    <div class="stat-val" data-count="{{ doctors|length }}">{{ doctors|length }}</div>
+    <div class="stat-delta">In this department</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+    <div class="stat-lbl">Appointments</div>
+    <div class="stat-val" data-count="{{ total_appts }}">{{ total_appts }}</div>
+    <div class="stat-delta">{{ today_count }} today · {{ unique_patients }} unique patients</div>
+  </div>
+  <div class="stat stat--ai">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg></div>
+    <div class="stat-lbl">Avg AI confidence</div>
+    <div class="stat-val" data-count="{{ avg_conf_pct }}">{{ avg_conf_pct }}<span style="font-size:.55em;font-weight:600;color:var(--ink-3)">%</span></div>
+    <div class="stat-delta">{{ analyzed }} of {{ total_appts }} analyzed · {{ coverage }}% coverage</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico" style="background:var(--clay-wash);color:var(--clay-deep)"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>
+    <div class="stat-lbl">Patient rating</div>
+    <div class="stat-val">{% if rating_count %}{{ avg_rating }}<span style="font-size:.55em;font-weight:600;color:var(--ink-3)">/5</span>{% else %}—{% endif %}</div>
+    <div class="stat-delta">{{ rating_count }} review{{ rating_count|pluralize }}</div>
+  </div>
+</section>
+
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>Status breakdown</h2>
+    <span class="meta">All-time</span>
+  </div>
+  <div style="padding:18px 22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px">
+    <div><div class="eyebrow">Completed</div><div style="font-size:22px;font-weight:800;color:var(--sage-deep)">{{ completed }}</div></div>
+    <div><div class="eyebrow">Scheduled</div><div style="font-size:22px;font-weight:800;color:var(--clay-deep)">{{ scheduled }}</div></div>
+    <div><div class="eyebrow">Canceled</div><div style="font-size:22px;font-weight:800;color:var(--rose-deep)">{{ canceled }}</div></div>
+  </div>
+</section>
+
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>Doctors</h2>
+    <span class="meta">Sorted by appointment volume</span>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Name</th><th>Specialty</th><th>Appointments</th><th>Unique patients</th><th>Rating</th><th class="cell-actions">Open</th></tr></thead>
+      <tbody>
+        {% for doc in doctors %}
+        <tr>
+          <td>
+            <a class="av-cell av-link" href="{% url 'doctor_detail' doc.pk %}">
+              <span class="av-c">{{ doc.name|slice:":2"|upper }}</span>
+              <span class="av-meta">
+                <span class="av-name">Dr. {{ doc.name }}</span>
+                <span class="av-sub">{{ doc.email }}</span>
+              </span>
+            </a>
+          </td>
+          <td style="color:var(--ink-3)">{{ doc.specialty }}</td>
+          <td><span class="pill pill--soft-sage">{{ doc.num_appts }}</span></td>
+          <td>{{ doc.num_patients }}</td>
+          <td>
+            {% if doc.avg_rating %}
+              <span style="display:inline-flex;align-items:center;gap:6px;font-weight:600">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round" style="color:var(--clay-deep)"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                {{ doc.avg_rating|floatformat:1 }}
+              </span>
+            {% else %}
+              <span style="color:var(--ink-4)">—</span>
+            {% endif %}
+          </td>
+          <td class="cell-actions">
+            <a class="icon-btn" title="Open" href="{% url 'doctor_detail' doc.pk %}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+          </td>
+        </tr>
+        {% empty %}
+          <tr><td colspan="6"><div class="empty" style="padding:30px"><h3>No doctors in this department yet</h3><p>Add one from the Doctors page.</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{% if top_dx %}
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>Top AI-diagnosed conditions</h2>
+    <span class="meta">From successful AI predictions</span>
+  </div>
+  <ol style="margin:0;padding:18px 22px 22px;list-style:none">
+    {% for row in top_dx %}
+      <li style="display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid var(--cream-3)">
+        <span style="min-width:28px;font-weight:800;color:var(--sage-deep)">{{ forloop.counter }}.</span>
+        <span style="flex:1">{{ row.predicted_diagnosis|default:"(blank)" }}</span>
+        <span class="pill pill--soft-sage">{{ row.n }}</span>
+      </li>
+    {% endfor %}
+  </ol>
+</section>
+{% endif %}
+{% endblock %}

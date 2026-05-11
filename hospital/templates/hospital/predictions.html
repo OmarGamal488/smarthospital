@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}AI predictions · {{ appointment.patient.name }} · SmartHospital{% endblock %}
+{% block chat_context_kind %}appointment{% endblock %}
+{% block chat_context_id %}{{ appointment.pk }}{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow"><a href="{% url 'appointments' %}" style="color:inherit">← Appointments</a></div>
+    <h1 class="page-title">AI prediction history</h1>
+    <p class="page-sub">All diagnostic runs for this appointment, newest first.</p>
+  </div>
+  <div class="page-actions">
+    <form method="post" action="{% url 'appointment_predict' appointment.pk %}" style="display:inline">{% csrf_token %}
+      <button class="btn btn--ai" type="submit">
+        <svg class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg>
+        Run new analysis
+      </button>
+    </form>
+  </div>
+</header>
+
+{# ─── Appointment summary card ─── #}
+<section class="panel" style="margin-bottom:var(--space-5)">
+  <div class="panel-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:var(--space-5)">
+    <div>
+      <div class="eyebrow" style="margin-bottom:6px">Patient</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="av-c">{{ appointment.patient.name|slice:":2"|upper }}</span>
+        <div>
+          <div style="font-weight:600;color:var(--ink)">{{ appointment.patient.name }}</div>
+          <div style="font-size:12px;color:var(--ink-3)">DOB {{ appointment.patient.date_of_birth|date:"M j, Y" }}</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:6px">Doctor</div>
+      <div style="font-weight:600;color:var(--ink)">Dr. {{ appointment.doctor.name }}</div>
+      <div style="font-size:12px;color:var(--ink-3)">{{ appointment.doctor.specialty }} · {{ appointment.doctor.department.name }}</div>
+    </div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:6px">Date / time</div>
+      <div style="font-weight:600;color:var(--ink)">{{ appointment.date_time|date:"M j, Y" }}</div>
+      <div style="font-size:12px;color:var(--ink-3)">{{ appointment.date_time|date:"g:i A" }}</div>
+    </div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:6px">Reason</div>
+      <div style="color:var(--ink-2);font-size:13px;line-height:1.5">{{ appointment.reason }}</div>
+    </div>
+  </div>
+</section>
+
+{# ─── Hero AI panel: latest prediction ─── #}
+{% with latest=predictions.0 %}
+{% if latest %}
+<section class="ai-panel" style="margin-bottom:var(--space-5)">
+  <div class="ai-head">
+    <span class="ai-spark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg></span>
+    <div style="flex:1">
+      <div class="ai-title">Latest AI assessment</div>
+      <div class="ai-meta">{{ latest.model_version }} · {{ latest.created_at|date:"M j, Y · g:i A" }}</div>
+    </div>
+    <span class="pill pill--ai"><span class="dot"></span>{{ latest.status }}</span>
+  </div>
+  <div class="ai-body">
+    <div>
+      <h2 class="ai-diag">{{ latest.predicted_diagnosis }}</h2>
+      <div class="ai-conf-track"><div class="ai-conf-bar" style="width: {% widthratio latest.confidence_score 1 100 %}%"></div></div>
+    </div>
+    <div class="ai-pct">{% widthratio latest.confidence_score 1 100 %}<span style="font-size:18px;color:var(--ai-deep)">%</span></div>
+  </div>
+  <div class="ai-foot">
+    <span><b>Latency</b> {{ latest.latency_ms }} ms</span>
+    <span><b>Tokens</b> {{ latest.total_tokens }}</span>
+    {% if latest.confidence_score < 0.5 %}<span style="color:var(--rose-deep)"><b>⚠ Low confidence</b> — please review carefully</span>{% endif %}
+  </div>
+</section>
+{% endif %}
+{% endwith %}
+
+{# ─── Full history table ─── #}
+<section class="panel">
+  <div class="panel-head"><h2>All runs</h2><span class="meta">{{ predictions|length }} prediction{{ predictions|length|pluralize }}</span></div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th class="row-num">#</th><th>Diagnosis</th><th>Confidence</th><th>Status</th><th>Model</th><th>Latency</th><th>Tokens</th><th>Run at</th></tr></thead>
+      <tbody>
+        {% for p in predictions %}
+        <tr>
+          <td class="row-num">{{ forloop.counter }}</td>
+          <td><strong>{{ p.predicted_diagnosis|default:"—" }}</strong>{% if p.error_message %}<div style="font-size:11px;color:var(--rose-deep);font-family:var(--font-mono);margin-top:2px">{{ p.error_message|truncatechars:60 }}</div>{% endif %}</td>
+          <td>
+            <span class="conf">
+              <span class="conf-track"><span class="conf-bar {% if p.confidence_score < 0.5 %}conf-bar-low{% endif %}" style="width: {% widthratio p.confidence_score 1 100 %}%"></span></span>
+              <span class="conf-pct">{% widthratio p.confidence_score 1 100 %}%</span>
+            </span>
+          </td>
+          <td>{% if p.status == 'SUCCESS' %}<span class="pill pill--ok"><span class="dot"></span>Success</span>{% else %}<span class="pill pill--err"><span class="dot"></span>Failed</span>{% endif %}</td>
+          <td style="font-family:var(--font-mono);font-size:12px;color:var(--ink-3)">{{ p.model_version }}</td>
+          <td style="font-variant-numeric:tabular-nums">{{ p.latency_ms }} ms</td>
+          <td style="font-variant-numeric:tabular-nums">{{ p.total_tokens }}</td>
+          <td>{{ p.created_at|date:"M j, g:i A" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">
+          <div class="empty">
+            <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg></div>
+            <h3>No predictions yet</h3><p>Run an analysis to generate the first AI assessment for this appointment.</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{% if form.instance.pk %}Edit{% else %}New{% endif %} {{ form_title|default:"record" }} · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">{% if form.instance.pk %}Editing{% else %}New record{% endif %}</div>
+    <h1 class="page-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} {{ form_title|default:"record" }}</h1>
+    {% if form_subtitle %}<p class="page-sub">{{ form_subtitle }}</p>{% endif %}
+  </div>
+</header>
+
+<section class="panel" style="max-width:680px">
+  <form method="post" class="panel-body" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <ul class="errorlist" style="margin-bottom:14px">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+
+    {% for field in form %}
+      <div class="field {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span style="color:var(--rose-deep)">*</span>{% endif %}</label>
+        {{ field }}
+        {% if field.help_text %}<span class="help">{{ field.help_text|safe }}</span>{% endif %}
+        {% if field.errors %}<ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+    {% endfor %}
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:8px;border-top:1px solid var(--cream-3);margin-top:8px">
+      <a class="btn btn--ghost" href="{% if cancel_url %}{% url cancel_url %}{% else %}/{% endif %}">Cancel</a>
+      <button class="btn btn--primary" type="submit">
+        {% if form.instance.pk %}Save changes{% else %}Create{% endif %}
+        <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </form>
+</section>
+{% endblock %}

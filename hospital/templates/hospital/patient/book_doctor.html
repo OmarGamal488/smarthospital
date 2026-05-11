@@ -1,0 +1,54 @@
+{% extends "hospital/patient/base.html" %}
+{% block title %}Choose a doctor · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">
+      <a href="{% url 'patient_book' %}" style="color:inherit">Specialty</a> ·
+      Step 2 of 3 · Doctor
+    </div>
+    <h1 class="page-title">Choose a clinician — {{ department.name }}</h1>
+    <p class="page-sub">{{ doctors|length }} doctor{{ doctors|length|pluralize }} in this department. Click a card to see open time slots.</p>
+  </div>
+</header>
+
+<div class="book-stepper">
+  <span class="book-step is-done"><b>1</b> Specialty</span>
+  <span class="book-step is-active"><b>2</b> Doctor</span>
+  <span class="book-step"><b>3</b> Time</span>
+</div>
+
+<section class="book-grid">
+  {% for d in doctors %}
+    {% if d.bookable %}
+      <a class="panel feature-card tilt" href="{% url 'patient_book_slots' d.obj.pk %}">
+        <div class="feature-ico" style="background:var(--clay-wash);color:var(--clay-deep)">
+          <span style="font-size:14px;font-weight:800">{{ d.obj.name|slice:":2"|upper }}</span>
+        </div>
+        <h3>Dr. {{ d.obj.name }}</h3>
+        <p>{{ d.obj.specialty }}</p>
+        <div class="meta" style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;color:var(--sage-deep)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Next slot: {{ d.next_day|date:"D, M j" }}
+        </div>
+      </a>
+    {% else %}
+      <div class="panel feature-card" style="opacity:.66;cursor:not-allowed">
+        <div class="feature-ico" style="background:var(--cream-2);color:var(--ink-4)">
+          <span style="font-size:14px;font-weight:800">{{ d.obj.name|slice:":2"|upper }}</span>
+        </div>
+        <h3>Dr. {{ d.obj.name }}</h3>
+        <p>{{ d.obj.specialty }}</p>
+        <span class="pill pill--neutral" style="margin-top:8px"><span class="dot"></span>No availability yet</span>
+      </div>
+    {% endif %}
+  {% empty %}
+    <div class="empty" style="padding:40px;grid-column:1/-1">
+      <h3>No doctors in this department</h3>
+      <p>Please pick a different specialty.</p>
+      <a class="btn btn--ghost" style="margin-top:8px" href="{% url 'patient_book' %}">Back to specialties</a>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

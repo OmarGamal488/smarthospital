@@ -1,0 +1,23 @@
+Hello {{ patient.name }},
+
+Your appointment is confirmed.
+
+  When:        {{ appointment.date_time|date:"l, F j, Y · g:i A" }}
+  With:        Dr. {{ doctor.name }} ({{ doctor.specialty }})
+  Department:  {{ department.name }}
+  Reason:      {{ appointment.reason }}
+  Reference:   #{{ appointment.pk }}
+
+What to bring:
+  - Government-issued ID
+  - Any current medications you're taking
+  - Recent lab results, if relevant
+
+Need to reschedule or cancel?
+Sign in to your patient portal and open this appointment. Cancellations
+made at least 4 hours in advance free up the slot for someone else.
+
+Thank you for choosing SmartHospital.
+
+— SmartHospital Reception
+   (Auto-generated message · do not reply directly)

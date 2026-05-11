@@ -1,0 +1,40 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Create account · SmartHospital</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}"/>
+</head>
+<body class="auth-bg">
+  <div class="auth-card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+      <span class="brand-logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-7-10a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.65-7 10-7 10"/><path d="M9 12h2l1-2 2 4 1-2h3"/></svg>
+      </span>
+      <span class="brand-name" style="font-size:17px"><b>Smart</b><i>Hospital</i></span>
+    </div>
+
+    <h1>Create your account.</h1>
+    <p class="sub">Get set up in under a minute.</p>
+
+    <form method="post" action="{% url 'register' %}" style="display:flex;flex-direction:column;gap:6px">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="field {% if field.errors %}has-error{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<span class="help">{{ field.help_text|safe }}</span>{% endif %}
+          {% if field.errors %}<ul class="errorlist">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn--primary" style="justify-content:center;margin-top:10px">
+        Create account
+        <svg class="arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </form>
+
+    <div class="alt-link">Already have an account? <a href="{% url 'login' %}">Sign in</a></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Dr. {{ doctor.name }} · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">
+      <a href="{% url 'doctors' %}" style="color:inherit">Doctors</a> · #{{ doctor.pk }}
+    </div>
+    <h1 class="page-title">Dr. {{ doctor.name }}</h1>
+    <p class="page-sub">
+      {{ doctor.specialty }} · {{ doctor.department.name }}
+      · <span style="font-family:var(--font-mono);font-size:13px">{{ doctor.email }}</span>
+    </p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn--ghost" href="{% url 'doctor_edit' doctor.pk %}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+      Edit doctor
+    </a>
+    <a class="btn btn--primary" href="{% url 'appointment_create' %}?doctor={{ doctor.pk }}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Schedule patient
+    </a>
+  </div>
+</header>
+
+<section class="patient-hero">
+  <div class="patient-id">
+    <span class="av-c lg" style="background:var(--clay-tint);color:var(--clay-deep)">{{ doctor.name|slice:":2"|upper }}</span>
+    <div class="patient-id-meta">
+      <h2>Dr. {{ doctor.name }}</h2>
+      <div class="patient-id-row">
+        <span class="pill pill--neutral">ID #{{ doctor.pk }}</span>
+        <span class="pill" style="background:var(--clay-wash);color:var(--clay-deep);border:1px solid var(--clay-tint)">{{ doctor.specialty }}</span>
+        <span class="meta">{{ doctor.department.name }}</span>
+      </div>
+    </div>
+  </div>
+  {% if upcoming %}
+    <div class="patient-next">
+      <div class="eyebrow">Next in schedule</div>
+      <div class="patient-next-when">{{ upcoming.0.date_time|date:"l, M j · g:i A" }}</div>
+      <div class="meta">{{ upcoming.0.patient.name }} · {{ upcoming.0.reason|truncatechars:36 }}</div>
+    </div>
+  {% endif %}
+</section>
+
+<section class="stat-grid">
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+    <div class="stat-lbl">Total appointments</div>
+    <div class="stat-val" data-count="{{ total_appts }}">{{ total_appts }}</div>
+    <div class="stat-delta">All time</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <div class="stat-lbl">Unique patients</div>
+    <div class="stat-val" data-count="{{ unique_patients }}">{{ unique_patients }}</div>
+    <div class="stat-delta">Distinct visitors</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></div>
+    <div class="stat-lbl">Completed</div>
+    <div class="stat-val" data-count="{{ completed }}">{{ completed }}</div>
+    <div class="stat-delta">{{ scheduled }} scheduled · {{ canceled }} canceled</div>
+  </div>
+  <div class="stat stat--ai">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg></div>
+    <div class="stat-lbl">Avg AI confidence</div>
+    <div class="stat-val"><span data-count="{{ avg_conf_pct }}">{{ avg_conf_pct }}</span><span class="unit">%</span></div>
+    <div class="stat-delta">{% if avg_conf_pct %}Across this doctor's visits{% else %}No predictions yet{% endif %}</div>
+  </div>
+</section>
+
+{% if upcoming %}
+<section class="panel">
+  <div class="panel-head">
+    <h2>Upcoming schedule</h2>
+    <span class="meta">Next {{ upcoming|length }}</span>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>When</th><th>Patient</th><th>Reason</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for a in upcoming %}
+        <tr>
+          <td>{{ a.date_time|date:"M j, Y · g:i A" }}</td>
+          <td><a href="{% url 'patient_detail' a.patient.pk %}" class="av-cell av-cell--link"><span class="av-c">{{ a.patient.name|slice:":2"|upper }}</span>{{ a.patient.name }}</a></td>
+          <td style="color:var(--ink-3)">{{ a.reason|truncatechars:50 }}</td>
+          <td>
+            {% if a.status == 'Completed' %}<span class="pill pill--ok"><span class="dot"></span>{{ a.status }}</span>
+            {% elif a.status == 'Canceled' %}<span class="pill pill--err"><span class="dot"></span>{{ a.status }}</span>
+            {% else %}<span class="pill pill--wrn"><span class="dot"></span>{{ a.status }}</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Recent history</h2>
+    <span class="meta">{{ total_appts }} total</span>
+  </div>
+  <div class="patient-timeline">
+    {% for a in appts %}
+      <div class="tl-item">
+        <div class="tl-dot {% if a.status == 'Completed' %}ok{% elif a.status == 'Canceled' %}err{% else %}wrn{% endif %}"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div>
+              <div class="tl-when">{{ a.date_time|date:"l, M j, Y · g:i A" }}</div>
+              <div class="tl-doc"><a href="{% url 'patient_detail' a.patient.pk %}">{{ a.patient.name }}</a></div>
+            </div>
+            {% if a.status == 'Completed' %}<span class="pill pill--ok"><span class="dot"></span>{{ a.status }}</span>
+            {% elif a.status == 'Canceled' %}<span class="pill pill--err"><span class="dot"></span>{{ a.status }}</span>
+            {% else %}<span class="pill pill--wrn"><span class="dot"></span>{{ a.status }}</span>{% endif %}
+          </div>
+          {% if a.reason %}<div class="tl-reason">{{ a.reason }}</div>{% endif %}
+          {% with p=a.latest_prediction %}
+            {% if p %}
+              <div class="tl-pred">
+                <div class="tl-pred-row">
+                  <span class="eyebrow" style="margin:0">AI Diagnosis</span>
+                  <span class="conf">
+                    <span class="conf-track"><span class="conf-bar {% if p.confidence_score < 0.5 %}conf-bar-low{% endif %}" style="width: {% widthratio p.confidence_score 1 100 %}%"></span></span>
+                    <span class="conf-pct">{% widthratio p.confidence_score 1 100 %}%</span>
+                  </span>
+                </div>
+                <div class="tl-pred-text">{{ p.predicted_diagnosis|truncatechars:140 }}</div>
+              </div>
+            {% endif %}
+          {% endwith %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty" style="padding:32px">
+        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <h3>No appointments yet</h3>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

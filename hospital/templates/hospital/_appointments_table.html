@@ -1,0 +1,51 @@
+{% for a in appointments %}
+<tr style="--i:{{ forloop.counter0 }}">
+  <td class="cell-check">
+    <label class="check"><input type="checkbox" class="row-check" name="ids" value="{{ a.pk }}"/><span></span></label>
+  </td>
+  <td class="row-num">{{ forloop.counter }}</td>
+  <td>
+    <a class="av-cell av-link" href="{% url 'patient_detail' a.patient.pk %}"
+       title="View patient · DOB {{ a.patient.date_of_birth|date:'M j, Y' }} · {{ a.patient.phone }}">
+      <span class="av-c">{{ a.patient.name|slice:":2"|upper }}</span>
+      <span class="av-meta">
+        <span class="av-name">{{ a.patient.name }}</span>
+        <span class="av-sub">DOB {{ a.patient.date_of_birth|date:"M j, Y" }} · {{ a.patient.phone }}</span>
+      </span>
+    </a>
+  </td>
+  <td>
+    <a class="row-soft-link" href="{% url 'doctor_detail' a.doctor.pk %}">Dr. {{ a.doctor.name }}</a>
+  </td>
+  <td>{{ a.date_time|date:"M j, Y · g:i A" }}</td>
+  <td style="color:var(--ink-3)">{{ a.reason|truncatechars:42 }}</td>
+  <td>
+    {% if a.status == 'Completed' %}<span class="pill pill--ok"><span class="dot"></span>{{ a.status }}</span>
+    {% elif a.status == 'Canceled' %}<span class="pill pill--err"><span class="dot"></span>{{ a.status }}</span>
+    {% else %}<span class="pill pill--wrn"><span class="dot"></span>{{ a.status }}</span>{% endif %}
+  </td>
+  <td>
+    {% with p=a.latest_prediction %}
+      {% if p %}
+        <span class="conf">
+          <span class="conf-track"><span class="conf-bar {% if p.confidence_score < 0.5 %}conf-bar-low{% endif %}" style="width: {% widthratio p.confidence_score 1 100 %}%"></span></span>
+          <span class="conf-pct">{% widthratio p.confidence_score 1 100 %}%</span>
+          {% if p.confidence_score < 0.5 %}<span class="conf-warn" title="Low confidence — review carefully"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span>{% endif %}
+        </span>
+      {% else %}<span class="pill pill--neutral">No prediction</span>{% endif %}
+    {% endwith %}
+  </td>
+  <td class="cell-actions">
+    <a class="icon-btn" title="History" href="{% url 'appointment_predictions' a.pk %}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg></a>
+    <a class="icon-btn" title="Edit" href="{% url 'appointment_edit' a.pk %}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg></a>
+    <button class="icon-btn danger" title="Delete" onclick="openDeleteModal('{% url 'appointment_delete' a.pk %}', 'Appointment for {{ a.patient.name|escapejs }}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+  </td>
+</tr>
+{% empty %}
+<tr><td colspan="9">
+  <div class="empty">
+    <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+    <h3>No appointments match</h3><p>Try a different search term or clear the filter.</p>
+  </div>
+</td></tr>
+{% endfor %}

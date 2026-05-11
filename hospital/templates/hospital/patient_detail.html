@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}{{ patient.name }} · SmartHospital{% endblock %}
+{% block chat_context_kind %}patient{% endblock %}
+{% block chat_context_id %}{{ patient.pk }}{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">
+      <a href="{% url 'patients' %}" style="color:inherit">Patients</a> · #{{ patient.pk }}
+    </div>
+    <h1 class="page-title">{{ patient.name }}</h1>
+    <p class="page-sub">
+      {% if age %}{{ age }} yrs · {% endif %}Born {{ patient.date_of_birth|date:"M j, Y" }}
+      · <span style="font-family:var(--font-mono);font-size:13px">{{ patient.phone }}</span>
+    </p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn--ghost" href="{% url 'patient_edit' patient.pk %}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+      Edit patient
+    </a>
+    <a class="btn btn--primary" href="{% url 'appointment_create' %}?patient={{ patient.pk }}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Book new appointment
+    </a>
+  </div>
+</header>
+
+<section class="patient-hero">
+  <div class="patient-id">
+    <span class="av-c lg">{{ patient.name|slice:":2"|upper }}</span>
+    <div class="patient-id-meta">
+      <h2>{{ patient.name }}</h2>
+      <div class="patient-id-row">
+        <span class="pill pill--neutral">ID #{{ patient.pk }}</span>
+        {% if last_visit %}<span class="meta">Last visit {{ last_visit.date_time|date:"M j, Y" }}</span>
+        {% else %}<span class="meta">No visits yet</span>{% endif %}
+      </div>
+    </div>
+  </div>
+  {% if next_appt %}
+    <div class="patient-next">
+      <div class="eyebrow">Next scheduled</div>
+      <div class="patient-next-when">{{ next_appt.date_time|date:"l, M j · g:i A" }}</div>
+      <div class="meta">Dr. {{ next_appt.doctor.name }} · {{ next_appt.doctor.department.name }}</div>
+    </div>
+  {% endif %}
+</section>
+
+<section class="stat-grid">
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+    <div class="stat-lbl">Total appointments</div>
+    <div class="stat-val" data-count="{{ total_appts }}">{{ total_appts }}</div>
+    <div class="stat-delta">All time</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></div>
+    <div class="stat-lbl">Completed</div>
+    <div class="stat-val" data-count="{{ completed }}">{{ completed }}</div>
+    <div class="stat-delta">Visits closed</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+    <div class="stat-lbl">Scheduled</div>
+    <div class="stat-val" data-count="{{ scheduled }}">{{ scheduled }}</div>
+    <div class="stat-delta">Upcoming</div>
+  </div>
+  <div class="stat stat--ai">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg></div>
+    <div class="stat-lbl">Avg AI confidence</div>
+    <div class="stat-val"><span data-count="{{ avg_conf_pct }}">{{ avg_conf_pct }}</span><span class="unit">%</span></div>
+    <div class="stat-delta">{% if avg_conf_pct %}Across this patient's visits{% else %}No predictions yet{% endif %}</div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Appointment history</h2>
+    <span class="meta">{{ total_appts }} total</span>
+  </div>
+  <div class="patient-timeline">
+    {% for a in appts %}
+      <div class="tl-item">
+        <div class="tl-dot
+          {% if a.status == 'Completed' %}ok{% elif a.status == 'Canceled' %}err{% else %}wrn{% endif %}"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div>
+              <div class="tl-when">{{ a.date_time|date:"l, M j, Y · g:i A" }}</div>
+              <div class="tl-doc">Dr. {{ a.doctor.name }} · {{ a.doctor.department.name }}</div>
+            </div>
+            {% if a.status == 'Completed' %}<span class="pill pill--ok"><span class="dot"></span>{{ a.status }}</span>
+            {% elif a.status == 'Canceled' %}<span class="pill pill--err"><span class="dot"></span>{{ a.status }}</span>
+            {% else %}<span class="pill pill--wrn"><span class="dot"></span>{{ a.status }}</span>{% endif %}
+          </div>
+          {% if a.reason %}<div class="tl-reason">{{ a.reason }}</div>{% endif %}
+          {% with p=a.latest_prediction %}
+            {% if p %}
+              <div class="tl-pred">
+                <div class="tl-pred-row">
+                  <span class="eyebrow" style="margin:0">AI Diagnosis</span>
+                  <span class="conf">
+                    <span class="conf-track"><span class="conf-bar {% if p.confidence_score < 0.5 %}conf-bar-low{% endif %}" style="width: {% widthratio p.confidence_score 1 100 %}%"></span></span>
+                    <span class="conf-pct">{% widthratio p.confidence_score 1 100 %}%</span>
+                  </span>
+                </div>
+                <div class="tl-pred-text">{{ p.predicted_diagnosis|truncatechars:160 }}</div>
+              </div>
+            {% endif %}
+          {% endwith %}
+          <div class="tl-actions">
+            <a class="btn btn--ghost btn--sm" href="{% url 'appointment_predictions' a.pk %}">View AI history</a>
+            <a class="btn btn--ghost btn--sm" href="{% url 'appointment_edit' a.pk %}">Edit</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty" style="padding:32px">
+        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <h3>No appointments yet</h3>
+        <p>This patient has no recorded visits. Click <em>Book new appointment</em> to schedule one.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

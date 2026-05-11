@@ -1,0 +1,184 @@
+{% extends "hospital/doctor/base.html" %}
+{% block title %}My schedule · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">Doctor · <span id="live-clock">{% now "l, F j · g:i A" %}</span></div>
+    <h1 class="page-title">Hello, Dr. {{ me.name }}.</h1>
+    <p class="page-sub">{{ me.specialty }} · {{ me.department.name }}</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn--ghost" href="{% url 'doctor_availability' %}">My availability</a>
+    <a class="btn btn--primary" href="{% url 'doctor_appointments' %}">All appointments</a>
+  </div>
+</header>
+
+<section class="stat-grid">
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+    <div class="stat-lbl">Today's visits</div>
+    <div class="stat-val" data-count="{{ today|length }}">{{ today|length }}</div>
+    <div class="stat-delta">{{ today_total_patients }} unique patient{{ today_total_patients|pluralize }}</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico" style="background:var(--sage-wash);color:var(--sage-deep)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg></div>
+    <div class="stat-lbl">Completed today</div>
+    <div class="stat-val" data-count="{{ today_completed }}">{{ today_completed }}</div>
+    <div class="stat-delta">Done</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico" style="background:var(--clay-wash);color:var(--clay-deep)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/></svg></div>
+    <div class="stat-lbl">In progress / next</div>
+    <div class="stat-val" data-count="{{ today_in_progress|add:today_upcoming }}">{{ today_in_progress|add:today_upcoming }}</div>
+    <div class="stat-delta">{% if today_in_progress %}{{ today_in_progress }} now · {% endif %}{{ today_upcoming }} upcoming</div>
+  </div>
+  <div class="stat stat--ai">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <div class="stat-lbl">Unique patients</div>
+    <div class="stat-val" data-count="{{ unique_patients }}">{{ unique_patients }}</div>
+    <div class="stat-delta">All-time</div>
+  </div>
+</section>
+
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>Next 7 days · patients per day</h2>
+    <span class="meta">Live count of booked visits (excludes canceled)</span>
+  </div>
+  <div class="day-strip">
+    {% for d in next7_days %}
+      <div class="day-cell {% if d.is_today %}is-today{% endif %} {% if d.is_off %}is-off{% endif %}">
+        <div class="day-dow">{{ d.date|date:"D" }}</div>
+        <div class="day-num">{{ d.date|date:"j" }}</div>
+        {% if d.is_off %}
+          <div class="day-count off">OFF</div>
+        {% else %}
+          <div class="day-count {% if d.count == 0 %}none{% endif %}">{{ d.count }}</div>
+          <div class="day-lbl">patient{{ d.count|pluralize }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>Today</h2>
+    <span class="meta" id="today-live-meta">{{ today|length }} visit{{ today|length|pluralize }} · live</span>
+  </div>
+  <div class="patient-timeline" id="today-timeline">
+    {% for a in today %}
+      <div class="tl-item" data-appt-start="{{ a.date_time|date:'c' }}" data-appt-status="{{ a.status }}">
+        <div class="tl-dot
+          {% if a.live_phase == 'completed' %}ok
+          {% elif a.live_phase == 'canceled' %}err
+          {% elif a.live_phase == 'now' %}now
+          {% elif a.live_phase == 'overdue' %}overdue
+          {% else %}wrn{% endif %}"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div>
+              <div class="tl-when">{{ a.date_time|date:"g:i A" }}</div>
+              <div class="tl-doc">{{ a.patient.name }}</div>
+            </div>
+            {% if a.live_phase == 'completed' %}
+              <span class="pill pill--ok"><span class="dot"></span>Completed</span>
+            {% elif a.live_phase == 'canceled' %}
+              <span class="pill pill--err"><span class="dot"></span>Canceled</span>
+            {% elif a.live_phase == 'now' %}
+              <span class="pill pill--live"><span class="dot dot-pulse"></span>In progress</span>
+            {% elif a.live_phase == 'overdue' %}
+              <span class="pill pill--err"><span class="dot"></span>Overdue</span>
+            {% else %}
+              <span class="pill pill--wrn"><span class="dot"></span>In <span class="tl-eta" data-eta-for="{{ a.date_time|date:'c' }}">soon</span></span>
+            {% endif %}
+          </div>
+          {% if a.reason %}<div class="tl-reason">{{ a.reason }}</div>{% endif %}
+          {% with p=a.latest_prediction %}
+            {% if p %}
+              <div class="tl-pred">
+                <div class="tl-pred-row">
+                  <span class="eyebrow" style="margin:0">AI Note</span>
+                  <span class="conf">
+                    <span class="conf-track"><span class="conf-bar {% if p.confidence_score < 0.5 %}conf-bar-low{% endif %}" style="width: {% widthratio p.confidence_score 1 100 %}%"></span></span>
+                    <span class="conf-pct">{% widthratio p.confidence_score 1 100 %}%</span>
+                  </span>
+                </div>
+                <div class="tl-pred-text">{{ p.predicted_diagnosis|truncatechars:120 }}</div>
+              </div>
+            {% endif %}
+          {% endwith %}
+          <div class="tl-actions">
+            <a class="btn btn--ghost btn--sm" href="{% url 'doctor_appointment_detail' a.pk %}">Open</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty" style="padding:36px">
+        <h3>No visits today</h3>
+        <p>You're clear for the day.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% if upcoming %}
+<section class="panel" style="margin-top:var(--space-4)">
+  <div class="panel-head">
+    <h2>Upcoming</h2>
+    <a class="btn btn--ghost btn--sm" href="{% url 'doctor_appointments' %}">View all</a>
+  </div>
+  <div class="patient-timeline">
+    {% for a in upcoming %}
+      <div class="tl-item">
+        <div class="tl-dot wrn"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div>
+              <div class="tl-when">{{ a.date_time|date:"D, M j · g:i A" }}</div>
+              <div class="tl-doc">{{ a.patient.name }}</div>
+            </div>
+            <span class="pill pill--wrn"><span class="dot"></span>Scheduled</span>
+          </div>
+          {% if a.reason %}<div class="tl-reason">{{ a.reason }}</div>{% endif %}
+          <div class="tl-actions">
+            <a class="btn btn--ghost btn--sm" href="{% url 'doctor_appointment_detail' a.pk %}">Open</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<script>
+  (function () {
+    // Live clock + ETA refresh, no server round-trips. Updates every 30 seconds.
+    const clock = document.getElementById('live-clock');
+    function fmtClock() {
+      const d = new Date();
+      const opts = { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' };
+      return d.toLocaleString(undefined, opts).replace(',', ' ·');
+    }
+    function tickEtas() {
+      if (clock) clock.textContent = fmtClock();
+      document.querySelectorAll('.tl-eta[data-eta-for]').forEach(el => {
+        const t = new Date(el.dataset.etaFor);
+        const diff = (t - new Date()) / 60000; // minutes
+        if (diff <= 0) { el.textContent = 'now'; el.closest('.pill')?.classList.add('pill--live'); return; }
+        if (diff < 60)  { el.textContent = Math.ceil(diff) + ' min'; return; }
+        const h = Math.floor(diff / 60), m = Math.round(diff % 60);
+        el.textContent = h + 'h' + (m ? ' ' + m + 'm' : '');
+      });
+    }
+    tickEtas();
+    setInterval(tickEtas, 30000);
+    // After 2 min on the page, also refresh stale "live" badges by reloading.
+    setTimeout(() => {
+      const visible = !document.hidden;
+      if (visible) location.reload();
+    }, 120000);
+  })();
+</script>
+{% endblock %}

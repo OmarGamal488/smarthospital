@@ -1,0 +1,17 @@
+{% if page.paginator.num_pages > 1 %}
+<div class="pager">
+  <span class="pager-info">Page <b>{{ page.number }}</b> of <b>{{ page.paginator.num_pages }}</b> · {{ page.paginator.count }} total</span>
+  <div class="pager-ctrls">
+    {% if page.has_previous %}
+      <a class="icon-btn" href="?page={{ page.previous_page_number }}{% if extra %}&{{ extra }}{% endif %}" title="Previous"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></a>
+    {% else %}
+      <span class="icon-btn disabled" aria-disabled="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></span>
+    {% endif %}
+    {% if page.has_next %}
+      <a class="icon-btn" href="?page={{ page.next_page_number }}{% if extra %}&{{ extra }}{% endif %}" title="Next"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></a>
+    {% else %}
+      <span class="icon-btn disabled" aria-disabled="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
+    {% endif %}
+  </div>
+</div>
+{% endif %}

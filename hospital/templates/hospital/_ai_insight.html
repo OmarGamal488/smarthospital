@@ -1,0 +1,11 @@
+{% if error %}
+  <div class="ai-insight-error">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+    <span>AI insight unavailable: {{ error|truncatechars:80 }}</span>
+  </div>
+{% else %}
+  <div class="ai-insight-text">{{ insight|default:"No insight generated." }}</div>
+{% endif %}
+<div class="ai-insight-foot">
+  <span class="meta">Generated {{ now|date:"g:i A" }}</span>
+</div>

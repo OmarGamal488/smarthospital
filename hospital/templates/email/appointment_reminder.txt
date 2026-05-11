@@ -1,0 +1,22 @@
+Hello {{ patient.name }},
+
+This is a friendly reminder about your upcoming visit:
+
+  When:        {{ appointment.date_time|date:"l, F j, Y · g:i A" }}
+  With:        Dr. {{ doctor.name }} ({{ doctor.specialty }})
+  Department:  {{ department.name }}
+  Reason:      {{ appointment.reason }}
+  Reference:   #{{ appointment.pk }}
+
+Please arrive 10 minutes early and bring:
+  - Government-issued ID
+  - Any current medications you're taking
+  - Recent lab results, if relevant
+
+Need to reschedule or cancel?
+Sign in to your patient portal — opening the appointment lets you pick
+a new time or cancel it (cancel ≥ 4h in advance to free the slot up
+for someone else).
+
+See you soon,
+The SmartHospital team

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Patient sign in · SmartHospital{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+  <section class="auth-card">
+    <header class="auth-head">
+      <div class="eyebrow">Patient · Sign in</div>
+      <h1>Welcome back</h1>
+      <p>Sign in to book or review your appointments.</p>
+    </header>
+
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% for err in field.errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      {% for err in form.non_field_errors %}<div class="field-err">{{ err }}</div>{% endfor %}
+      <button class="btn btn--primary btn--lg magnetic" type="submit">
+        Sign in
+        <svg class="arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </form>
+    <div class="auth-foot">
+      New here?
+      <a href="{% url 'patient_register' %}">Create a patient account</a>
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ department.name }} · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow"><a href="{% url 'services' %}" style="color:inherit">Specialties</a></div>
+    <h1 class="page-title">{{ department.name }}</h1>
+    {% if department.description %}<p class="page-sub">{{ department.description }}</p>{% endif %}
+  </div>
+  <div class="page-actions">
+    {% if user.is_authenticated and not user.is_staff %}
+      <a class="btn btn--primary magnetic" href="{% url 'patient_book_doctor' department.pk %}">Book in this department</a>
+    {% else %}
+      <a class="btn btn--primary magnetic" href="{% url 'patient_register' %}">Register to book</a>
+    {% endif %}
+  </div>
+</header>
+
+<section class="features-grid">
+  {% for doc in doctors %}
+    <article class="panel feature-card tilt">
+      <div class="feature-ico" style="background:var(--clay-wash);color:var(--clay-deep)">
+        <span style="font-weight:800">{{ doc.name|slice:":2"|upper }}</span>
+      </div>
+      <h3>Dr. {{ doc.name }}</h3>
+      <p>{{ doc.specialty }}</p>
+    </article>
+  {% empty %}
+    <div class="empty" style="padding:40px;grid-column:1/-1">
+      <h3>No clinicians listed</h3>
+      <p>Please check back soon.</p>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

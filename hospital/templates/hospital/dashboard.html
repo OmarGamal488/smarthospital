@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard · SmartHospital{% endblock %}
+{% block chat_context_kind %}dashboard{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">Overview · {% now "l, F j" %} · {{ range_label }}</div>
+    <h1 class="page-title">Good morning, {{ user.first_name|default:user.username }}.</h1>
+    <p class="page-sub">Here's what's happening across SmartHospital today.</p>
+  </div>
+  <div class="page-actions">
+    <div class="seg" role="tablist" aria-label="Date range">
+      {% for key, label in range_choices %}
+        <a role="tab" aria-selected="{% if range_key == key %}true{% else %}false{% endif %}"
+           class="seg-item {% if range_key == key %}active{% endif %}"
+           href="?range={{ key }}">{{ label }}</a>
+      {% endfor %}
+    </div>
+    <a class="btn btn--ghost" href="{% url 'appointments_calendar' %}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Calendar
+    </a>
+    <a class="btn btn--primary" href="{% url 'appointment_create' %}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      New appointment
+    </a>
+  </div>
+</header>
+
+<section class="ai-insight-card panel">
+  <div class="ai-insight-head">
+    <span class="ai-insight-ico">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg>
+    </span>
+    <h2 class="ai-insight-title">AI insight of the day</h2>
+    <button class="icon-btn" type="button" title="Refresh"
+            hx-get="{% url 'dashboard_ai_insight' %}"
+            hx-target="#ai-insight-body"
+            hx-swap="innerHTML"
+            hx-indicator="#ai-insight-loading">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+    </button>
+  </div>
+  <div id="ai-insight-body"
+       hx-get="{% url 'dashboard_ai_insight' %}"
+       hx-trigger="load"
+       hx-swap="innerHTML">
+    <div id="ai-insight-loading" class="ai-insight-loading">
+      <span class="chat-dots"><i></i><i></i><i></i></span>
+      Generating insight…
+    </div>
+  </div>
+</section>
+
+<section class="stat-grid">
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg></div>
+    <div class="stat-lbl">Departments</div>
+    <div class="stat-val" data-count="{{ stats.departments|default:8 }}">{{ stats.departments|default:8 }}</div>
+    <div class="stat-delta">+1 this quarter</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+    <div class="stat-lbl">Doctors</div>
+    <div class="stat-val" data-count="{{ stats.doctors|default:42 }}">{{ stats.doctors|default:42 }}</div>
+    <div class="stat-delta">+3 this month</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <div class="stat-lbl">Patients</div>
+    <div class="stat-val" data-count="{{ stats.patients|default:1284 }}">{{ stats.patients|default:1284 }}</div>
+    <div class="stat-delta">+47 last 7 days</div>
+  </div>
+  <div class="stat">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+    <div class="stat-lbl">Appointments</div>
+    <div class="stat-val" data-count="{{ stats.appointments|default:312 }}">{{ stats.appointments|default:312 }}</div>
+    <div class="stat-delta">+12% vs last week</div>
+  </div>
+  <div class="stat stat--ai">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg></div>
+    <div class="stat-lbl">AI Coverage</div>
+    <div class="stat-val"><span data-count="{{ stats.ai_coverage|default:78 }}">78</span><span class="unit">%</span></div>
+    <div class="stat-delta">+6 pts this month</div>
+  </div>
+  <div class="stat stat--ai">
+    <div class="stat-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12 11 14 15 10"/><path d="M21 12c0 4.97-4.03 9-9 9-1.66 0-3.22-.45-4.56-1.23L3 21l1.23-4.44A9 9 0 1 1 21 12Z"/></svg></div>
+    <div class="stat-lbl">Avg Confidence</div>
+    <div class="stat-val"><span data-count="{{ stats.avg_confidence|default:84.2 }}">84.2</span><span class="unit">%</span></div>
+    <div class="stat-delta">Stable</div>
+  </div>
+</section>
+
+<section class="chart-grid">
+  <div class="panel">
+    <div class="panel-head"><h2>Appointments by status</h2><span class="meta">Last 30 days</span></div>
+    <div class="chart-canvas-wrap"><canvas id="chart-status"></canvas></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h2>Patients by department</h2><span class="meta">Active</span></div>
+    <div class="chart-canvas-wrap"><canvas id="chart-dept"></canvas></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h2>Top diagnoses (AI)</h2><span class="meta">Last 30 days</span></div>
+    <div class="chart-canvas-wrap"><canvas id="chart-diag"></canvas></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h2>Daily appointment volume</h2><span class="meta">Last 14 days</span></div>
+    <div class="chart-canvas-wrap"><canvas id="chart-vol"></canvas></div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Recent appointments</h2>
+    <a class="btn btn--ghost btn--sm" href="{% url 'appointments' %}">View all
+      <svg class="arrow" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Patient</th><th>Doctor</th><th>Date / time</th><th>Reason</th><th>Status</th><th>AI confidence</th></tr></thead>
+      <tbody>
+        {% for a in recent_appointments %}
+        <tr>
+          <td><span class="av-cell"><span class="av-c">{{ a.patient.name|slice:":2"|upper }}</span>{{ a.patient.name }}</span></td>
+          <td>Dr. {{ a.doctor.name }}</td>
+          <td>{{ a.date_time|date:"M j, g:i A" }}</td>
+          <td>{{ a.reason|truncatechars:36 }}</td>
+          <td>
+            {% if a.status == 'Completed' %}<span class="pill pill--ok"><span class="dot"></span>{{ a.status }}</span>
+            {% elif a.status == 'Canceled' %}<span class="pill pill--err"><span class="dot"></span>{{ a.status }}</span>
+            {% else %}<span class="pill pill--wrn"><span class="dot"></span>{{ a.status }}</span>{% endif %}
+          </td>
+          <td>
+            {% with p=a.latest_prediction %}
+              {% if p %}
+                <span class="conf">
+                  <span class="conf-track"><span class="conf-bar {% if p.confidence_score < 0.5 %}conf-bar-low{% endif %}" style="width: {% widthratio p.confidence_score 1 100 %}%"></span></span>
+                  <span class="conf-pct">{% widthratio p.confidence_score 1 100 %}%</span>
+                </span>
+              {% else %}<span class="pill pill--neutral">No prediction</span>{% endif %}
+            {% endwith %}
+          </td>
+        </tr>
+        {% empty %}
+        {# polished placeholder rows #}
+        <tr><td><span class="av-cell"><span class="av-c">EM</span>Elena Marsh</span></td><td>Dr. Idris Khan</td><td>Today, 9:30 AM</td><td>Persistent migraines, photophobia</td><td><span class="pill pill--wrn"><span class="dot"></span>Scheduled</span></td><td><span class="conf"><span class="conf-track"><span class="conf-bar" style="width:88%"></span></span><span class="conf-pct">88%</span></span></td></tr>
+        <tr><td><span class="av-cell"><span class="av-c terra">JR</span>Jonas Reyes</span></td><td>Dr. Priya Patel</td><td>Today, 10:15 AM</td><td>Post-op follow-up, knee</td><td><span class="pill pill--ok"><span class="dot"></span>Completed</span></td><td><span class="conf"><span class="conf-track"><span class="conf-bar" style="width:92%"></span></span><span class="conf-pct">92%</span></span></td></tr>
+        <tr><td><span class="av-cell"><span class="av-c lav">SO</span>Sara Okonkwo</span></td><td>Dr. Idris Khan</td><td>Today, 11:00 AM</td><td>Chest tightness, shortness of breath</td><td><span class="pill pill--wrn"><span class="dot"></span>Scheduled</span></td><td><span class="conf"><span class="conf-track"><span class="conf-bar conf-bar-low" style="width:42%"></span></span><span class="conf-pct">42%</span><span class="conf-warn" title="Low confidence"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4M12 17h.01"/></svg></span></span></td></tr>
+        <tr><td><span class="av-cell"><span class="av-c">AT</span>Anika Tomar</span></td><td>Dr. Marcus Bell</td><td>Today, 1:45 PM</td><td>Annual physical</td><td><span class="pill pill--err"><span class="dot"></span>Canceled</span></td><td><span class="pill pill--neutral">No prediction</span></td></tr>
+        <tr><td><span class="av-cell"><span class="av-c terra">BL</span>Bao Linh</span></td><td>Dr. Priya Patel</td><td>Today, 3:00 PM</td><td>Lower back pain, recurring</td><td><span class="pill pill--wrn"><span class="dot"></span>Scheduled</span></td><td><span class="conf"><span class="conf-track"><span class="conf-bar" style="width:76%"></span></span><span class="conf-pct">76%</span></span></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <h2>Recent activity</h2>
+    <span class="meta">Last {{ recent_audit|length }} events</span>
+  </div>
+  <ul class="audit-list">
+    {% for ev in recent_audit %}
+      <li class="audit-item audit--{{ ev.action }}" style="--i:{{ forloop.counter0 }}">
+        <span class="audit-ico">
+          {% if ev.action == 'create' %}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          {% elif ev.action == 'update' %}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+          {% elif ev.action == 'delete' %}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          {% else %}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.5 4-4 1.5L10.5 10 12 14l1.5-4 4-1.5L13.5 7Z"/></svg>
+          {% endif %}
+        </span>
+        <div class="audit-body">
+          <div class="audit-summary">
+            <b>{{ ev.action|capfirst }}</b> {{ ev.kind }} ·
+            {{ ev.summary }}
+          </div>
+          <div class="audit-meta">
+            {% if ev.user %}{{ ev.user.username }}{% else %}system{% endif %} · {{ ev.created_at|timesince }} ago
+          </div>
+        </div>
+      </li>
+    {% empty %}
+      <li class="audit-empty">No activity yet — start adding records to see them here.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Brand-coherent palette pulled from style.css
+  const C = {
+    sage:'#059669', sageDeep:'#065F46', sageWash:'#ECFDF5', sageTint:'#A7F3D0',
+    clay:'#0D9488', clayDeep:'#0F766E', clayWash:'#F0FDFA', clayTint:'#99F6E4',
+    wheat:'#D97706', wheatTint:'#FDE68A',
+    rose:'#C44A3D', roseTint:'#F2CFC9',
+    ai:'#65A30D', aiTint:'#D9F99D',
+    ink:'#0F1F1A', ink3:'#4A5D52', cream2:'#E8F0EA', cream3:'#D6E4DA'
+  };
+  const baseOpts = {
+    responsive: true, maintainAspectRatio: false,
+    animation: { duration: 1000, easing: 'easeOutQuart' },
+    plugins: {
+      legend: { labels: { color: C.ink3, font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: 500 }, boxWidth: 8, boxHeight: 8, padding: 14 } },
+      tooltip: { backgroundColor: '#fff', titleColor: C.ink, bodyColor: C.ink3, borderColor: C.cream3, borderWidth: 1, padding: 10, cornerRadius: 10, displayColors: false, titleFont: { family: "'Plus Jakarta Sans'", weight: 700 }, bodyFont: { family: "'Plus Jakarta Sans'" } }
+    },
+    scales: {
+      x: { ticks: { color: C.ink3, font: { family: "'Plus Jakarta Sans'", size: 11 } }, grid: { color: C.cream2, drawBorder: false } },
+      y: { ticks: { color: C.ink3, font: { family: "'Plus Jakarta Sans'", size: 11 } }, grid: { color: C.cream2, drawBorder: false }, beginAtZero: true }
+    }
+  };
+  // Donut: appointments by status
+  new Chart(document.getElementById('chart-status'), {
+    type: 'doughnut',
+    data: { labels: ['Scheduled','Completed','Canceled'], datasets: [{ data: [142,138,32], backgroundColor: [C.wheat, C.sage, C.rose], borderColor: '#FFFFFF', borderWidth: 3, hoverOffset: 6 }] },
+    options: { ...baseOpts, cutout: '68%', scales: {} }
+  });
+  // Bar: patients by department
+  new Chart(document.getElementById('chart-dept'), {
+    type: 'bar',
+    data: { labels: ['Cardio','Neuro','Ortho','Peds','Onc','Gen'], datasets: [{ data: [220,180,156,210,98,420], backgroundColor: ctx => { const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 220); g.addColorStop(0, C.sage); g.addColorStop(1, C.sageTint); return g; }, borderRadius: 8, borderSkipped: false }] },
+    options: { ...baseOpts, plugins: { ...baseOpts.plugins, legend: { display: false } } }
+  });
+  // Horizontal bar: top diagnoses
+  new Chart(document.getElementById('chart-diag'), {
+    type: 'bar',
+    data: { labels: ['Hypertension','Migraine','Lower back pain','URI','Type 2 diabetes'], datasets: [{ data: [54,41,37,29,22], backgroundColor: [C.sage, C.clay, C.ai, C.wheat, '#34D399'], borderRadius: 6, borderSkipped: false }] },
+    options: { ...baseOpts, indexAxis: 'y', plugins: { ...baseOpts.plugins, legend: { display: false } } }
+  });
+  // Line: daily volume
+  new Chart(document.getElementById('chart-vol'), {
+    type: 'line',
+    data: { labels: ['M','T','W','T','F','S','S','M','T','W','T','F','S','S'], datasets: [{ label: 'Appointments', data: [18,22,26,21,28,12,9,24,27,30,26,32,15,11], borderColor: C.sage, backgroundColor: ctx => { const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 200); g.addColorStop(0, 'rgba(5,150,105,.28)'); g.addColorStop(1, 'rgba(5,150,105,0)'); return g; }, fill: true, tension: .35, borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5, pointBackgroundColor: C.sage }] },
+    options: { ...baseOpts, plugins: { ...baseOpts.plugins, legend: { display: false } } }
+  });
+</script>
+{% endblock %}

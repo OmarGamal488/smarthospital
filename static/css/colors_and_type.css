@@ -1,0 +1,250 @@
+/* ============================================================================
+   SmartHospital Design System — Tokens
+   Direction: Verdant — all-greens (emerald primary + teal accent + lime AI) on mint canvas
+   Note: legacy token names (--sage / --clay / --ai / --wheat) are kept for stability;
+   their VALUES were re-mapped to the Verdant palette. Treat the names as IDs, not hues.
+   Density:  Balanced (Linear-flavored), light-mode default
+   --------------------------------------------------------------------------
+   Drop this into any page; everything else (style.css, UI kit, Django templates)
+   reads from these custom properties.
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  /* ── Surface ── mint-tinted off-white */
+  --cream:           #F4F8F5;     /* canvas */
+  --cream-2:         #E8F0EA;     /* sunken surface, table head */
+  --cream-3:         #D6E4DA;     /* hairline / divider */
+  --paper:           #FFFFFF;     /* elevated card */
+  --paper-warm:      #FAFCFB;     /* almost-white, panels */
+
+  /* ── Ink ── forest-tinted slate, not black */
+  --ink:             #0F1F1A;     /* h1, page title */
+  --ink-2:           #1F3329;     /* body, h2/h3 */
+  --ink-3:           #4A5D52;     /* secondary text, table meta */
+  --ink-4:           #8DA395;     /* tertiary, placeholder */
+  --ink-5:           #C5D2C9;     /* disabled, dividers on light */
+
+  /* ── Emerald ── primary brand */
+  --sage:            #059669;     /* primary buttons, links (emerald-600) */
+  --sage-deep:       #065F46;     /* hover, active (emerald-800) */
+  --sage-darker:     #022C22;     /* on light max-contrast (emerald-950) */
+  --sage-soft:       #34D399;     /* secondary, muted (emerald-400) */
+  --sage-tint:       #A7F3D0;     /* fill for badges, soft chips (emerald-200) */
+  --sage-wash:       #ECFDF5;     /* hover row, ghost btn (emerald-50) */
+
+  /* ── Teal ── accent (cooler, blue-leaning green) */
+  --clay:            #0D9488;     /* accent (teal-600) */
+  --clay-deep:       #0F766E;     /* (teal-700) */
+  --clay-tint:       #99F6E4;     /* (teal-200) */
+  --clay-wash:       #F0FDFA;     /* (teal-50) */
+
+  /* ── Amber / Wheat ── warning, scheduled */
+  --wheat:           #D97706;     /* (amber-600) */
+  --wheat-deep:      #92400E;     /* (amber-800) */
+  --wheat-tint:      #FDE68A;     /* (amber-200) */
+  --wheat-wash:      #FEF3C7;     /* (amber-100) */
+
+  /* ── Rose / Red ── danger, canceled, destructive */
+  --rose:            #DC2626;     /* (red-600) */
+  --rose-deep:       #991B1B;     /* (red-800) */
+  --rose-tint:       #FECACA;     /* (red-200) */
+  --rose-wash:       #FEE2E2;     /* (red-100) */
+
+  /* ── Lime ── AI / Hero (warm, yellow-leaning green for distinction) */
+  --ai:              #65A30D;     /* sparkle, AI badge (lime-600) */
+  --ai-deep:         #3F6212;     /* (lime-800) */
+  --ai-tint:         #D9F99D;     /* (lime-200) */
+  --ai-wash:         #F7FEE7;     /* (lime-50) */
+  /* The AI hero gradient — emerald → teal → lime */
+  --ai-gradient:     linear-gradient(135deg, #059669 0%, #0D9488 55%, #65A30D 100%);
+  --ai-gradient-soft: linear-gradient(135deg, rgba(5,150,105,0.16) 0%, rgba(13,148,136,0.18) 60%, rgba(101,163,13,0.18) 100%);
+  --ai-glow:         0 0 0 1px rgba(5,150,105,0.28),
+                     0 8px 24px -8px rgba(13,148,136,0.45),
+                     0 16px 48px -16px rgba(101,163,13,0.32);
+
+  /* ── Semantic aliases (use these in app code) ── */
+  --color-bg:            var(--cream);
+  --color-bg-sunken:     var(--cream-2);
+  --color-surface:       var(--paper);
+  --color-surface-warm:  var(--paper-warm);
+  --color-text:          var(--ink);
+  --color-text-muted:    var(--ink-3);
+  --color-text-subtle:   var(--ink-4);
+  --color-border:        var(--cream-3);
+  --color-border-strong: #B8CDC0;
+
+  --color-primary:       var(--sage);
+  --color-primary-hover: var(--sage-deep);
+  --color-primary-fg:    #FFFFFF;
+
+  --color-accent:        var(--clay);
+  --color-accent-hover:  var(--clay-deep);
+
+  --color-success:       #2F7E5C;
+  --color-success-tint:  var(--sage-tint);
+  --color-warning:       var(--wheat-deep);
+  --color-warning-tint:  var(--wheat-tint);
+  --color-danger:        var(--rose);
+  --color-danger-tint:   var(--rose-tint);
+
+  /* ── Typography ── */
+  --font-sans:    "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Type scale (1.200 minor third on body, larger jumps on display) */
+  --text-2xs:  11px;
+  --text-xs:   12px;
+  --text-sm:   13px;
+  --text-base: 14px;
+  --text-md:   15px;
+  --text-lg:   17px;
+  --text-xl:   20px;
+  --text-2xl:  24px;
+  --text-3xl:  30px;
+  --text-4xl:  38px;
+  --text-5xl:  48px;
+  --text-6xl:  60px;
+
+  --leading-tight:   1.15;
+  --leading-snug:    1.30;
+  --leading-normal:  1.50;
+  --leading-relaxed: 1.65;
+
+  --tracking-tight:   -0.02em;
+  --tracking-snug:    -0.012em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.02em;
+  --tracking-caps:    0.08em;
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-display:  700;
+
+  /* ── Spacing (4px base) ── */
+  --space-0:   0;
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+  --space-20:  80px;
+  --space-24:  96px;
+
+  /* ── Radius ── */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   18px;
+  --radius-2xl:  24px;
+  --radius-pill: 999px;
+
+  /* ── Shadow ── warm-tinted (not black) */
+  --shadow-xs:  0 1px 2px rgba(63, 64, 47, 0.05);
+  --shadow-sm:  0 1px 2px rgba(63, 64, 47, 0.06),
+                0 2px 6px -2px rgba(63, 64, 47, 0.05);
+  --shadow-md:  0 2px 4px rgba(63, 64, 47, 0.06),
+                0 8px 18px -4px rgba(63, 64, 47, 0.10);
+  --shadow-lg:  0 4px 8px rgba(63, 64, 47, 0.06),
+                0 18px 38px -8px rgba(63, 64, 47, 0.14);
+  --shadow-xl:  0 8px 16px rgba(63, 64, 47, 0.08),
+                0 32px 60px -12px rgba(63, 64, 47, 0.20);
+
+  /* Inner highlight for glass slabs */
+  --inset-top:  inset 0 1px 0 rgba(255,255,255,0.6);
+
+  /* Focus ring, petrol with offset */
+  --ring:       0 0 0 3px rgba(31, 81, 99, 0.24);
+  --ring-clay:  0 0 0 3px rgba(242, 107, 94, 0.24);
+  --ring-rose:  0 0 0 3px rgba(196, 74, 61, 0.24);
+
+  /* ── Motion ── */
+  --ease-out:       cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-soft:  cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast:       120ms;
+  --dur:            200ms;
+  --dur-slow:       320ms;
+
+  /* ── Layout ── */
+  --container-max:   1280px;
+  --navbar-h:        64px;
+  --layout-pad:      var(--space-8);
+  --layout-pad-sm:   var(--space-5);
+}
+
+/* ============================================================================
+   Semantic role classes (use as utility on any element)
+   ========================================================================== */
+
+.h-display {
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--ink);
+}
+.h1 {
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--ink);
+}
+.h2 {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-snug);
+  color: var(--ink);
+}
+.h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-snug);
+  color: var(--ink);
+}
+.h4 {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  color: var(--ink);
+}
+.body {
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-normal);
+  color: var(--ink-2);
+}
+.small {
+  font-size: var(--text-sm);
+  color: var(--ink-3);
+}
+.eyebrow {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  letter-spacing: -0.005em;
+}
+.numeric {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+}

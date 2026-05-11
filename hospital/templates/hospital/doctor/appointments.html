@@ -1,0 +1,63 @@
+{% extends "hospital/doctor/base.html" %}
+{% block title %}My appointments · SmartHospital{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="titles">
+    <div class="eyebrow">Doctor · Schedule</div>
+    <h1 class="page-title">My appointments</h1>
+    <p class="page-sub">Everyone you've ever seen or are scheduled to see.</p>
+  </div>
+  <div class="page-actions">
+    <form method="get" style="display:inline">
+      <select name="status" class="select" onchange="this.form.submit()">
+        <option value="">All statuses</option>
+        <option value="Scheduled" {% if status == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+        <option value="Completed" {% if status == 'Completed' %}selected{% endif %}>Completed</option>
+        <option value="Canceled"  {% if status == 'Canceled' %}selected{% endif %}>Canceled</option>
+      </select>
+    </form>
+  </div>
+</header>
+
+<section class="panel">
+  <div class="patient-timeline">
+    {% for a in appointments %}
+      <div class="tl-item">
+        <div class="tl-dot {% if a.status == 'Completed' %}ok{% elif a.status == 'Canceled' %}err{% else %}wrn{% endif %}"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <div>
+              <div class="tl-when">{{ a.date_time|date:"l, M j, Y · g:i A" }}</div>
+              <div class="tl-doc">{{ a.patient.name }}</div>
+            </div>
+            {% if a.status == 'Completed' %}<span class="pill pill--ok"><span class="dot"></span>{{ a.status }}</span>
+            {% elif a.status == 'Canceled' %}<span class="pill pill--err"><span class="dot"></span>{{ a.status }}</span>
+            {% else %}<span class="pill pill--wrn"><span class="dot"></span>{{ a.status }}</span>{% endif %}
+          </div>
+          {% if a.reason %}<div class="tl-reason">{{ a.reason }}</div>{% endif %}
+          {% with p=a.latest_prediction %}
+            {% if p %}
+              <div class="tl-pred">
+                <div class="tl-pred-row">
+                  <span class="eyebrow" style="margin:0">AI Note</span>
+                  <span class="conf">
+                    <span class="conf-track"><span class="conf-bar {% if p.confidence_score < 0.5 %}conf-bar-low{% endif %}" style="width: {% widthratio p.confidence_score 1 100 %}%"></span></span>
+                    <span class="conf-pct">{% widthratio p.confidence_score 1 100 %}%</span>
+                  </span>
+                </div>
+                <div class="tl-pred-text">{{ p.predicted_diagnosis|truncatechars:120 }}</div>
+              </div>
+            {% endif %}
+          {% endwith %}
+          <div class="tl-actions">
+            <a class="btn btn--ghost btn--sm" href="{% url 'doctor_appointment_detail' a.pk %}">Open</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty" style="padding:36px"><h3>No appointments yet</h3></div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
