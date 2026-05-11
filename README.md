@@ -16,9 +16,9 @@
 
 ## Demo
 
-<video src="[https://github.com/OmarGamal488/smarthospital/raw/main/docs/smarthospital.webm](https://github.com/user-attachments/assets/be337234-c012-452f-aa9f-f4dbb352fd5b)" controls width="100%"></video>
+https://github.com/user-attachments/assets/be337234-c012-452f-aa9f-f4dbb352fd5b
 
-> Video doesn't play inline? [Download / open it directly →](docs/smarthospital.webm)
+> Prefer to download? [Open the raw file →](docs/smarthospital.webm)
 
 ---
 
